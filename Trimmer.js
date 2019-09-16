@@ -247,9 +247,7 @@ export default class Trimmer extends React.Component {
   render() {
     const {
       maxTrimDuration,
-      trimDuration,
       totalDuration,
-      trimOffset,
       trimmerLeftHandlePosition,
       trimmerRightHandlePosition
     } = this.props;
@@ -332,24 +330,26 @@ export default class Trimmer extends React.Component {
 
 const styles = StyleSheet.create({
   root: {
-
-    height: 200,
-    backgroundColor: 'pink'
+    height: 140,
+    // height: 200,
     // flex: 1,
     // backgroundColor: '#fff',
     // alignItems: 'center',
     // justifyContent: 'center',
   },
   horizontalScrollView: {
-    backgroundColor: 'red',
+    borderColor: 'red',
+    borderWidth: 1,
     paddingVertical: 20,
     height: 140,
     overflow: 'hidden',
     position: 'relative',
   },
   trackBackground: {
-    backgroundColor: 'blue',
+    backgroundColor: '#F7F9FC',
     borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#EDF1F7',
     height: 100,
     marginHorizontal: HANDLE_WIDTHS + TRACK_PADDING_OFFSET,
   },
