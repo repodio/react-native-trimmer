@@ -54,7 +54,6 @@ export default class Trimmer extends React.Component {
       // The gesture has started. Show visual feedback so the user knows
       // what is happening!
       // gestureState.d{x,y} will be set to zero now
-      console.log('Left Handle grant')
       // this.trimmingLeftHandleValue.setValue(this.props.trimmerLeftHandlePosition);
 
       this.setState({ trimming: true, trimmingLeftHandleValue: this.props.trimmerLeftHandlePosition })
@@ -119,6 +118,13 @@ export default class Trimmer extends React.Component {
       return true;
     },
 })
+
+  calculatePinchDistance = (x1, y1, x2, y2) => {
+    let dx = Math.abs(x1 - x2)
+    let dy = Math.abs(y1 - y2)
+    const distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+    return distance
+  }
   
   createTrackPanResponder = () => PanResponder.create({
       // Ask to be the responder:
@@ -129,18 +135,52 @@ export default class Trimmer extends React.Component {
 
       onPanResponderGrant: (evt, gestureState) => {
         this.lastScaleDy = 0;
+        const touches = evt.nativeEvent.touches || {};
+        if (touches.length == 2) {
+            let touch1 = touches[0];
+            let touch2 = touches[1];
+
+            const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
+
+            this.lastScalePinchDist = pinchDistance;
+            // console.log('onPanResponderMove 2 TOUCHES touch1: ', touch1, ' , touch2: ', touch2)
+        } 
+
       },
       onPanResponderMove: (evt, gestureState) => {
-        const stepValue = (gestureState.dy - this.lastScaleDy);
-        this.lastScaleDy = gestureState.dy
+        const touches = evt.nativeEvent.touches;
+        if (touches.length == 2) {
+          let touch1 = touches[0];
+          let touch2 = touches[1];
 
-        const scaleStep = (stepValue * 2) / screenHeight
-        const { trackScale } = this.state;
+          const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
+          
+          const stepValue = pinchDistance - this.lastScalePinchDist;
+          this.lastScalePinchDist = pinchDistance
+  
+          const scaleStep = (stepValue * 2) / screenHeight
+          const { trackScale } = this.state;
+  
+          const newTrackScaleValue = trackScale + scaleStep;
+          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, MAXIMUM_SCALE_VALUE), 1)
+  
+          this.setState({trackScale: newBoundedTrackScaleValue})
 
-        const newTrackScaleValue = trackScale + scaleStep;
-        const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, MAXIMUM_SCALE_VALUE), 1)
 
-        this.setState({trackScale: newBoundedTrackScaleValue})
+            // console.log('onPanResponderMove 2 TOUCHES touch1: ', touch1, ' , touch2: ', touch2)
+        } else {
+          const stepValue = (gestureState.dy - this.lastScaleDy);
+          this.lastScaleDy = gestureState.dy
+  
+          const scaleStep = (stepValue * 2) / screenHeight
+          const { trackScale } = this.state;
+  
+          const newTrackScaleValue = trackScale + scaleStep;
+          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, MAXIMUM_SCALE_VALUE), 1)
+  
+          this.setState({trackScale: newBoundedTrackScaleValue})
+        }
+        
 
         // The most recent move distance is gestureState.move{X,Y}
         // The accumulated gesture distance since becoming responder is
@@ -217,7 +257,9 @@ export default class Trimmer extends React.Component {
     const { trimming, trackScale, trimmingLeftHandleValue } = this.state;
 
     const trackWidth = screenWidth * trackScale
-    
+    if(typeof trackWidth !== 'number') {
+      console.log('ERROR render() trackWidth !== number. screenWidth', screenWidth, ', trackScale', trackScale, ', ', trackWidth)
+    }
     const trackBackgroundStyles = [styles.trackBackground, { width: trackWidth }];
     
 
@@ -235,11 +277,9 @@ export default class Trimmer extends React.Component {
     // console.log('actualTrimmerWidth ', actualTrimmerWidth, 'actualTrimmerOffset ', actualTrimmerOffset, 'boundedLeftPosition ', boundedLeftPosition, )
     // console.log(trimming, ' actualTrimmerOffset: ', typeof actualTrimmerOffset, ' actualTrimmerWidth: ', typeof actualTrimmerWidth);
 
-    const scaleValue = this.scaleTrackValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [2.0, 1.0],
-    })
-    const scaleStyle = { scaleX: scaleValue };
+    if(typeof actualTrimmerWidth !== 'number') {
+      console.log('ERROR render() actualTrimmerWidth !== number. totalTrimTime', totalTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
+    }
 
     return (
       <View style={styles.root}>
