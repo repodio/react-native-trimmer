@@ -241,7 +241,7 @@ export default class Trimmer extends React.Component {
   handleLeftHandleSizeChange = (newPosition) => {
     const { onLeftHandleChange } = this.props;
     // console.log('new position', newPosition)
-    onLeftHandleChange(newPosition)
+    onLeftHandleChange(newPosition | 0)
   }
 
   render() {

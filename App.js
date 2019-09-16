@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Trimmer from './Trimmer';
+import moment from 'moment';
 
 
 const maxTrimDuration = 60000;
@@ -27,9 +28,7 @@ export default class App extends React.Component {
     this.setState({trimmerLeftHandlePosition: newLeftHandleValue })
   }
 
-  formatTime = (time) => {
-    return time
-  }
+  formatDuration = milliseconds => moment.utc(milliseconds).format('HH:mm:ss')
 
   render() {
     const {
@@ -42,11 +41,11 @@ export default class App extends React.Component {
         <View style={styles.timeContainer}>
           <View style={styles.timeWrapper}>
             <Text style={styles.timeLabel}>Start Time</Text>
-            <Text style={styles.time}>{this.formatTime(trimmerLeftHandlePosition)}</Text>
+            <Text style={styles.time}>{this.formatDuration(trimmerLeftHandlePosition)}</Text>
           </View>
           <View style={styles.timeWrapper}>
             <Text style={styles.timeLabel}>End Time</Text>
-            <Text style={styles.time}>{this.formatTime(trimmerRightHandlePosition)}</Text>
+            <Text style={styles.time}>{this.formatDuration(trimmerRightHandlePosition)}</Text>
           </View>
         </View>
         <Trimmer 
