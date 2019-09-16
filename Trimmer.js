@@ -10,12 +10,13 @@ import {
   TouchableHighlight,
 } from 'react-native';
 
-const screenWidth = Dimensions.get('window').width;
+const { width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
 const TRACK_WIDTH_COEFFICIENT = .1
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
 const MINIMUM_TRACK_DURATION = 5000;
+const MAXIMUM_SCALE_VALUE = 5;
 const TOTAL_TRACK_WIDTH = screenWidth * 3;
 
 export default class Trimmer extends React.Component {
@@ -127,14 +128,20 @@ export default class Trimmer extends React.Component {
       onMoveShouldSetPanResponderCapture: (evt, gestureState) => !this.state.trimming,
 
       onPanResponderGrant: (evt, gestureState) => {
-        // The gesture has started. Show visual feedback so the user knows
-        // what is happening!
-        // gestureState.d{x,y} will be set to zero now
-        if(!this.state.trimming) {
-          console.log('createTrackPanResponder onPanResponderGrant')
-        }
+        this.lastScaleDy = 0;
       },
       onPanResponderMove: (evt, gestureState) => {
+        const stepValue = (gestureState.dy - this.lastScaleDy);
+        this.lastScaleDy = gestureState.dy
+
+        const scaleStep = (stepValue * 2) / screenHeight
+        const { trackScale } = this.state;
+
+        const newTrackScaleValue = trackScale + scaleStep;
+        const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, MAXIMUM_SCALE_VALUE), 1)
+
+        this.setState({trackScale: newBoundedTrackScaleValue})
+
         // The most recent move distance is gestureState.move{X,Y}
         // The accumulated gesture distance since becoming responder is
         // gestureState.d{x,y}
@@ -225,7 +232,7 @@ export default class Trimmer extends React.Component {
     const actualTrimmerWidth = (totalTrimTime / totalDuration) * trackWidth;
     const actualTrimmerOffset = (boundedLeftPosition / totalDuration) * trackWidth;
  
-    console.log('actualTrimmerWidth ', actualTrimmerWidth, 'actualTrimmerOffset ', actualTrimmerOffset, 'boundedLeftPosition ', boundedLeftPosition, )
+    // console.log('actualTrimmerWidth ', actualTrimmerWidth, 'actualTrimmerOffset ', actualTrimmerOffset, 'boundedLeftPosition ', boundedLeftPosition, )
     // console.log(trimming, ' actualTrimmerOffset: ', typeof actualTrimmerOffset, ' actualTrimmerWidth: ', typeof actualTrimmerWidth);
 
     const scaleValue = this.scaleTrackValue.interpolate({
