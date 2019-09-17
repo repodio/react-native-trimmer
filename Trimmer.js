@@ -260,6 +260,7 @@ export default class Trimmer extends React.Component {
             styles.trimmer,
             { width: actualTrimmerWidth, left: actualTrimmerOffset }
           ]}>
+            <View style={styles.selection}/>
             <View style={[styles.handle, styles.leftHandle]} {...this.leftHandlePanResponder.panHandlers}>
               <Arrow.Left />
             </View>
@@ -316,6 +317,12 @@ const styles = StyleSheet.create({
     right: -30,
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5,
+  },
+  selection: {
+    opacity: 0.2,
+    backgroundColor: '#40E1A9',
+    width: '100%',
+    height: '100%',
   },
   markersContainer: {
     flexDirection: 'row',
