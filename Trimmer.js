@@ -244,7 +244,15 @@ export default class Trimmer extends React.Component {
           <View style={trackBackgroundStyles}>
             <View style={styles.markersContainer}>
               {
-                markers.map((m,i) => <View key={`marker-${i}`} style={[styles.marker, i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker]}/>)
+                markers.map((m,i) => (
+                  <View 
+                    key={`marker-${i}`} 
+                    style={[
+                      styles.marker,
+                      i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
+                      i === 0 || i === markers.length - 1 ? styles.hiddenMarker : {}
+                    ]}/>
+                ))
               }
             </View>
           </View>
@@ -313,7 +321,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     height: '100%',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   marker: {
@@ -325,5 +333,8 @@ const styles = StyleSheet.create({
   },
   specialMarker: {
     height: 22,
+  },
+  hiddenMarker: {
+    opacity: 0
   }
 });
