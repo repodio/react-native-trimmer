@@ -17,6 +17,8 @@ const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
 const MINIMUM_TRACK_DURATION = 5000;
 const MAXIMUM_SCALE_VALUE = 5;
+const MARKER_INCREMENT = 5000;
+const SPECIAL_MARKER_INCREMEMNT = 5;
 const TOTAL_TRACK_WIDTH = screenWidth * 3;
 
 export default class Trimmer extends React.Component {
@@ -218,6 +220,8 @@ export default class Trimmer extends React.Component {
       console.log('ERROR render() actualTrimmerWidth !== number. boundedTrimTime', boundedTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
     }
 
+    const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
+    console.log('markers', markers.length, totalDuration / MARKER_INCREMENT, (totalDuration / MARKER_INCREMENT) | 0, totalDuration, MARKER_INCREMENT)
     return (
       <View style={styles.root}>
         <ScrollView 
@@ -229,14 +233,19 @@ export default class Trimmer extends React.Component {
           horizontal
           {...this.trackPanResponder.panHandlers}
         >
-          <View style={trackBackgroundStyles}></View>
+          <View style={trackBackgroundStyles}>
+            <View style={styles.markersContainer}>
+              {
+                markers.map((m,i) => <View key={`marker-${i}`} style={[styles.marker, i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker]}/>)
+              }
+            </View>
+          </View>
           <Animated.View style={[
             styles.trimmer,
             { width: actualTrimmerWidth, left: actualTrimmerOffset }
           ]}>
             <View style={[styles.handle, styles.leftHandle]} {...this.leftHandlePanResponder.panHandlers}></View>
             <View style={[styles.handle, styles.rightHandle]} {...this.rightHandlePanResponder.panHandlers}></View>
-
           </Animated.View>
         </ScrollView>
       </View>
@@ -289,5 +298,22 @@ const styles = StyleSheet.create({
     right: -30,
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5,
+  },
+  markersContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  marker: {
+    backgroundColor: '#EDF1F7', // marker color,
+    width: 2,
+    height: 8,
+    // borderColor: 'red',
+    borderRadius: 2,
+  },
+  specialMarker: {
+    height: 22,
   }
 });
