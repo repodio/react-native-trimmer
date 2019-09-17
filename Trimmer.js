@@ -17,7 +17,7 @@ const { width: screenWidth, height: screenHeight} = Dimensions.get('window');
 const TRACK_WIDTH_COEFFICIENT = .1
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
-const MINIMUM_TRACK_DURATION = 5000;
+const MINIMUM_TRACK_DURATION = 1000;
 const MAXIMUM_SCALE_VALUE = 5;
 const MARKER_INCREMENT = 5000;
 const SPECIAL_MARKER_INCREMEMNT = 5;
@@ -59,15 +59,21 @@ export default class Trimmer extends React.Component {
     },
     onPanResponderMove: (evt, gestureState) => {
       const { trackScale } = this.state;
-      const { trimmerRightHandlePosition, totalDuration } = this.props;
+      const { trimmerRightHandlePosition, trimmerLeftHandlePosition, totalDuration } = this.props;
       
       const trackWidth = screenWidth * trackScale
       const calculatedTrimmerRightHandlePosition = (trimmerRightHandlePosition / totalDuration) * trackWidth;
 
       const newTrimmerRightHandlePosition = ((calculatedTrimmerRightHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
       
-      const newBoundedTrimmerRightHandlePosition = Math.min(newTrimmerRightHandlePosition, totalDuration)
-      
+      const newBoundedTrimmerRightHandlePosition = 
+        Math.max(
+          Math.min(
+            newTrimmerRightHandlePosition,
+            totalDuration
+          ),
+          trimmerLeftHandlePosition + MINIMUM_TRACK_DURATION
+        )
       
       console.log('newBoundedTrimmerRightHandlePosition', newBoundedTrimmerRightHandlePosition)
 
@@ -95,23 +101,21 @@ export default class Trimmer extends React.Component {
     },
     onPanResponderMove: (evt, gestureState) => {
       const { trackScale } = this.state;
-      const { trimmerLeftHandlePosition, totalDuration } = this.props;
+      const { trimmerLeftHandlePosition, trimmerRightHandlePosition, totalDuration } = this.props;
       
       const trackWidth = (screenWidth) * trackScale
       const calculatedTrimmerLeftHandlePosition = (trimmerLeftHandlePosition / totalDuration) * trackWidth;
-
-
-
-
-      const trackOffset = TRACK_PADDING_OFFSET * trackScale
-      console.log('trackOffset', trackOffset, (trackOffset / trackWidth) * totalDuration)
-
       
       const newTrimmerLeftHandlePosition = ((calculatedTrimmerLeftHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
       
-      const newBoundedTrimmerLeftHandlePosition = Math.max(newTrimmerLeftHandlePosition, 0)
-
-      console.log('newBoundedTrimmerLeftHandlePosition', newBoundedTrimmerLeftHandlePosition, ', newTrimmerLeftHandlePosition', newTrimmerLeftHandlePosition)
+      const newBoundedTrimmerLeftHandlePosition = 
+        Math.min(
+          Math.max(
+            newTrimmerLeftHandlePosition,
+            0
+          ),
+          trimmerRightHandlePosition - MINIMUM_TRACK_DURATION
+        )
 
       this.setState({ trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition })
     },
