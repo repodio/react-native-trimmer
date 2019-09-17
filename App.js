@@ -25,7 +25,13 @@ export default class App extends React.Component {
   onLeftHandleChange = (newLeftHandleValue) => {
     // this.setState({ trimDuration: duration, trimOffset: offset });
     console.log('onLeftHandleChange', newLeftHandleValue)
-    this.setState({trimmerLeftHandlePosition: newLeftHandleValue })
+    this.setState({ trimmerLeftHandlePosition: newLeftHandleValue })
+  }
+
+  onRightHandleChange = (newRightHandleValue) => {
+    // this.setState({ trimDuration: duration, trimOffset: offset });
+    console.log('onRightHandleChange', newRightHandleValue)
+    this.setState({ trimmerRightHandlePosition: newRightHandleValue })
   }
 
   formatDuration = milliseconds => moment.utc(milliseconds).format('HH:mm:ss')
@@ -48,8 +54,9 @@ export default class App extends React.Component {
             <Text style={styles.time}>{this.formatDuration(trimmerRightHandlePosition)}</Text>
           </View>
         </View>
-        <Trimmer 
+        <Trimmer
           onLeftHandleChange={this.onLeftHandleChange}
+          onRightHandleChange={this.onRightHandleChange}
           maxTrimDuration={maxTrimDuration}
           totalDuration={totalDuration}
           trimmerLeftHandlePosition={trimmerLeftHandlePosition}

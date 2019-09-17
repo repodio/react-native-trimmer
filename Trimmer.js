@@ -28,45 +28,60 @@ export default class Trimmer extends React.Component {
       trimming: false, // this value means the handles are being moved
       trackScale: 2,         // the scale factor for the track
       trimmingLeftHandleValue: 0,
+      trimmingRightHandleValue: 0,
     }
   }
-
 
   initiateAnimator = () => {
     
     this.scaleTrackValue = new Animated.Value(0);
-    // this.trimmingLeftHandleValue = new Animated.Value(0);
     this.lastDy = 0;
     this.trackPanResponder = this.createTrackPanResponder()
     this.leftHandlePanResponder = this.createLeftHandlePanResponder()
-    // this.rightHandlePanResponder = this.createRightHandlePanResponder()
+    this.rightHandlePanResponder = this.createRightHandlePanResponder()
   }
 
-
-  createLeftHandlePanResponder = () => PanResponder.create({
-    // Ask to be the responder:
+  createRightHandlePanResponder = () => PanResponder.create({
     onStartShouldSetPanResponder: (evt, gestureState) => true,
     onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
     onMoveShouldSetPanResponder: (evt, gestureState) => true,
     onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
-
     onPanResponderGrant: (evt, gestureState) => {
-      // The gesture has started. Show visual feedback so the user knows
-      // what is happening!
-      // gestureState.d{x,y} will be set to zero now
-      // this.trimmingLeftHandleValue.setValue(this.props.trimmerLeftHandlePosition);
+      this.setState({ trimming: true, trimmingRightHandleValue: this.props.trimmerRightHandlePosition })
+    },
+    onPanResponderMove: (evt, gestureState) => {
+      const { trackScale } = this.state;
+      const { trimmerRightHandlePosition, totalDuration } = this.props;
+      
+      const trackWidth = screenWidth * trackScale
+      const calculatedTrimmerRightHandlePosition = (trimmerRightHandlePosition / totalDuration) * trackWidth;
 
+      const newTrimmerRightHandlePosition = ((calculatedTrimmerRightHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
+      
+      const newBoundedTrimmerRightHandlePosition = Math.min(newTrimmerRightHandlePosition, totalDuration)
+      
+      
+      console.log('newBoundedTrimmerRightHandlePosition', newBoundedTrimmerRightHandlePosition)
+
+      this.setState({ trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition })
+    },
+    onPanResponderRelease: (evt, gestureState) => {
+      this.handleRightHandleSizeChange(this.state.trimmingRightHandleValue)
+      this.setState({ trimming: false })
+    },
+    onPanResponderTerminationRequest: (evt, gestureState) => true,
+    onShouldBlockNativeResponder: (evt, gestureState) => true
+  })
+
+  createLeftHandlePanResponder = () => PanResponder.create({
+    onStartShouldSetPanResponder: (evt, gestureState) => true,
+    onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+    onMoveShouldSetPanResponder: (evt, gestureState) => true,
+    onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+    onPanResponderGrant: (evt, gestureState) => {
       this.setState({ trimming: true, trimmingLeftHandleValue: this.props.trimmerLeftHandlePosition })
     },
     onPanResponderMove: (evt, gestureState) => {
-      // The most recent move distance is gestureState.move{X,Y}
-      // The accumulated gesture distance since becoming responder is
-      // gestureState.d{x,y}
-
-
-      // const stepValue = (gestureState.dy - this.lastDy);
-      // this.lastDy = gestureState.dy
-
       const { trackScale } = this.state;
       const { trimmerLeftHandlePosition, totalDuration } = this.props;
       
@@ -76,48 +91,15 @@ export default class Trimmer extends React.Component {
       const newTrimmerLeftHandlePosition = ((calculatedTrimmerLeftHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
       
       const newBoundedTrimmerLeftHandlePosition = Math.max(newTrimmerLeftHandlePosition, 0)
-
-      // console.log(gestureState.dx, 'newTrimmerLeftHandlePosition', trimmerLeftHandlePosition, newBoundedTrimmerLeftHandlePosition, minimumValue)
-
-      
       this.setState({ trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition })
-
-      // this.trimmingLeftHandleValue.setValue(newBoundedTrimmerLeftHandlePosition)
-
-
-
-      // this.handleLeftHandleSizeChange(gestureState.dx)
-      // let touches = evt.nativeEvent.touches;
-      // if (touches.length == 2) {
-      //     let touch1 = touches[0];
-      //     let touch2 = touches[1];
-
-      //     console.log('onPanResponderMove 2 TOUCHES touch1: ', touch1, ' , touch2: ', touch2)
-      // } else if (touches.length == 1 && !this.state.isZooming) {
-      //     this.processTouch(touches[0].pageX, touches[0].pageY);
-      // }
+    },
+    onPanResponderRelease: (evt, gestureState) => {
+      this.handleLeftHandleSizeChange(this.state.trimmingLeftHandleValue)
+      this.setState({ trimming: false })
     },
     onPanResponderTerminationRequest: (evt, gestureState) => true,
-    onPanResponderRelease: (evt, gestureState) => {
-      // The user has released all touches while this view is the
-      // responder. This typically means a gesture has succeeded
-
-      this.handleLeftHandleSizeChange(this.state.trimmingLeftHandleValue)
-
-      this.setState({ trimming: false })
-      // this.trimmingLeftHandleValue = 0;
-
-    },
-    onPanResponderTerminate: (evt, gestureState) => {
-      // Another component has become the responder, so this gesture
-      // should be cancelled
-    },
-    onShouldBlockNativeResponder: (evt, gestureState) => {
-      // Returns whether this component should block native components from becoming the JS
-      // responder. Returns true by default. Is currently only supported on android.
-      return true;
-    },
-})
+    onShouldBlockNativeResponder: (evt, gestureState) => true
+  })
 
   calculatePinchDistance = (x1, y1, x2, y2) => {
     let dx = Math.abs(x1 - x2)
@@ -132,27 +114,18 @@ export default class Trimmer extends React.Component {
       onStartShouldSetPanResponderCapture: (evt, gestureState) => !this.state.trimming,
       onMoveShouldSetPanResponder: (evt, gestureState) => !this.state.trimming,
       onMoveShouldSetPanResponderCapture: (evt, gestureState) => !this.state.trimming,
-
       onPanResponderGrant: (evt, gestureState) => {
         this.lastScaleDy = 0;
         const touches = evt.nativeEvent.touches || {};
         if (touches.length == 2) {
-            let touch1 = touches[0];
-            let touch2 = touches[1];
+          const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
 
-            const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
-
-            this.lastScalePinchDist = pinchDistance;
-            // console.log('onPanResponderMove 2 TOUCHES touch1: ', touch1, ' , touch2: ', touch2)
+          this.lastScalePinchDist = pinchDistance;
         } 
-
       },
       onPanResponderMove: (evt, gestureState) => {
         const touches = evt.nativeEvent.touches;
         if (touches.length == 2) {
-          let touch1 = touches[0];
-          let touch2 = touches[1];
-
           const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
           
           const stepValue = pinchDistance - this.lastScalePinchDist;
@@ -165,9 +138,6 @@ export default class Trimmer extends React.Component {
           const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, MAXIMUM_SCALE_VALUE), 1)
   
           this.setState({trackScale: newBoundedTrackScaleValue})
-
-
-            // console.log('onPanResponderMove 2 TOUCHES touch1: ', touch1, ' , touch2: ', touch2)
         } else {
           const stepValue = (gestureState.dy - this.lastScaleDy);
           this.lastScaleDy = gestureState.dy
@@ -180,68 +150,19 @@ export default class Trimmer extends React.Component {
   
           this.setState({trackScale: newBoundedTrackScaleValue})
         }
-        
-
-        // The most recent move distance is gestureState.move{X,Y}
-        // The accumulated gesture distance since becoming responder is
-        // gestureState.d{x,y}
-
-
-        // const stepValue = (gestureState.dy - this.lastDy);
-        // this.lastDy = gestureState.dy
-        // console.log('onPanResponderMove gestureState', stepValue, gestureState.dy)
-  
-        // let touches = evt.nativeEvent.touches;
-        // if (touches.length == 2) {
-        //     let touch1 = touches[0];
-        //     let touch2 = touches[1];
-
-        //     console.log('onPanResponderMove 2 TOUCHES touch1: ', touch1, ' , touch2: ', touch2)
-        // } else if (touches.length == 1 && !this.state.isZooming) {
-        //     this.processTouch(touches[0].pageX, touches[0].pageY);
-        // }
-
-
-
       },
       onPanResponderTerminationRequest: (evt, gestureState) => true,
-      onPanResponderRelease: (evt, gestureState) => {
-        console.log('createTrackPanResponder onPanResponderRelease')
-
-        // The user has released all touches while this view is the
-        // responder. This typically means a gesture has succeeded
-      },
-      onPanResponderTerminate: (evt, gestureState) => {
-        // Another component has become the responder, so this gesture
-        // should be cancelled
-      },
-      onShouldBlockNativeResponder: (evt, gestureState) => {
-        // Returns whether this component should block native components from becoming the JS
-        // responder. Returns true by default. Is currently only supported on android.
-        return true;
-      },
+      onShouldBlockNativeResponder: (evt, gestureState) => true
   })
-
-  // handleResetZoomScale = (event) => {
-  //   this.scrollResponderRef.scrollResponderZoomTo({ 
-  //      x: 0, 
-  //      y: 0, 
-  //      width: screenWidth, 
-  //      height: 140, 
-  //      animated: true 
-  //   })
-  // }
-  // setZoomRef = node => { //the ScrollView has a scrollResponder which allows us to access more methods to control the ScrollView component
-  //   if (node) {
-  //     this.zoomRef = node
-  //     this.scrollResponderRef = this.zoomRef.getScrollResponder()
-  //   }
-  // }
 
   handleLeftHandleSizeChange = (newPosition) => {
     const { onLeftHandleChange } = this.props;
-    // console.log('new position', newPosition)
     onLeftHandleChange(newPosition | 0)
+  }
+
+  handleRightHandleSizeChange = (newPosition) => {
+    const { onRightHandleChange } = this.props;
+    onRightHandleChange(newPosition | 0)
   }
 
   render() {
@@ -252,7 +173,7 @@ export default class Trimmer extends React.Component {
       trimmerRightHandlePosition
     } = this.props;
 
-    const { trimming, trackScale, trimmingLeftHandleValue } = this.state;
+    const { trimming, trackScale, trimmingLeftHandleValue, trimmingRightHandleValue } = this.state;
 
     const trackWidth = screenWidth * trackScale
     if(typeof trackWidth !== 'number') {
@@ -264,19 +185,19 @@ export default class Trimmer extends React.Component {
     const minimumTrackOffset = (TRACK_PADDING_OFFSET / trackWidth) * totalDuration
 
     const leftPosition = trimming ? trimmingLeftHandleValue : trimmerLeftHandlePosition
+    const rightPosition = trimming ? trimmingRightHandleValue : trimmerRightHandlePosition
+
     const boundedLeftPosition = Math.max(leftPosition, minimumTrackOffset)
+    const boundedTrimTime = Math.max(rightPosition - boundedLeftPosition, 0)
 
-
-    const totalTrimTime = Math.max(trimmerRightHandlePosition - boundedLeftPosition, 0)
-
-    const actualTrimmerWidth = (totalTrimTime / totalDuration) * trackWidth;
+    const actualTrimmerWidth = (boundedTrimTime / totalDuration) * trackWidth;
     const actualTrimmerOffset = (boundedLeftPosition / totalDuration) * trackWidth;
  
     // console.log('actualTrimmerWidth ', actualTrimmerWidth, 'actualTrimmerOffset ', actualTrimmerOffset, 'boundedLeftPosition ', boundedLeftPosition, )
     // console.log(trimming, ' actualTrimmerOffset: ', typeof actualTrimmerOffset, ' actualTrimmerWidth: ', typeof actualTrimmerWidth);
 
     if(typeof actualTrimmerWidth !== 'number') {
-      console.log('ERROR render() actualTrimmerWidth !== number. totalTrimTime', totalTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
+      console.log('ERROR render() actualTrimmerWidth !== number. boundedTrimTime', boundedTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
     }
 
     return (
@@ -296,7 +217,7 @@ export default class Trimmer extends React.Component {
             { width: actualTrimmerWidth, left: actualTrimmerOffset }
           ]}>
             <View style={[styles.handle, styles.leftHandle]} {...this.leftHandlePanResponder.panHandlers}></View>
-            <View style={[styles.handle, styles.rightHandle]}></View>
+            <View style={[styles.handle, styles.rightHandle]} {...this.rightHandlePanResponder.panHandlers}></View>
 
           </Animated.View>
         </ScrollView>
@@ -366,7 +287,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: HANDLE_WIDTHS,
     height: '100%',
-    backgroundColor: '#40E1A9',
+    // backgroundColor: '#40E1A9',
+    backgroundColor: 'red',
   },
   leftHandle: {
     left: 0,
