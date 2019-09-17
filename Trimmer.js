@@ -47,7 +47,11 @@ export default class Trimmer extends React.Component {
     onMoveShouldSetPanResponder: (evt, gestureState) => true,
     onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
     onPanResponderGrant: (evt, gestureState) => {
-      this.setState({ trimming: true, trimmingRightHandleValue: this.props.trimmerRightHandlePosition })
+      this.setState({
+        trimming: true,
+        trimmingRightHandleValue: this.props.trimmerRightHandlePosition,
+        trimmingLeftHandleValue: this.props.trimmerLeftHandlePosition,
+      })
     },
     onPanResponderMove: (evt, gestureState) => {
       const { trackScale } = this.state;
@@ -79,18 +83,32 @@ export default class Trimmer extends React.Component {
     onMoveShouldSetPanResponder: (evt, gestureState) => true,
     onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
     onPanResponderGrant: (evt, gestureState) => {
-      this.setState({ trimming: true, trimmingLeftHandleValue: this.props.trimmerLeftHandlePosition })
+      this.setState({
+        trimming: true,
+        trimmingRightHandleValue: this.props.trimmerRightHandlePosition,
+        trimmingLeftHandleValue: this.props.trimmerLeftHandlePosition,
+      })
     },
     onPanResponderMove: (evt, gestureState) => {
       const { trackScale } = this.state;
       const { trimmerLeftHandlePosition, totalDuration } = this.props;
       
-      const trackWidth = screenWidth * trackScale
+      const trackWidth = (screenWidth) * trackScale
       const calculatedTrimmerLeftHandlePosition = (trimmerLeftHandlePosition / totalDuration) * trackWidth;
 
+
+
+
+      const trackOffset = TRACK_PADDING_OFFSET * trackScale
+      console.log('trackOffset', trackOffset, (trackOffset / trackWidth) * totalDuration)
+
+      
       const newTrimmerLeftHandlePosition = ((calculatedTrimmerLeftHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
       
       const newBoundedTrimmerLeftHandlePosition = Math.max(newTrimmerLeftHandlePosition, 0)
+
+      console.log('newBoundedTrimmerLeftHandlePosition', newBoundedTrimmerLeftHandlePosition, ', newTrimmerLeftHandlePosition', newTrimmerLeftHandlePosition)
+
       this.setState({ trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition })
     },
     onPanResponderRelease: (evt, gestureState) => {
@@ -182,12 +200,12 @@ export default class Trimmer extends React.Component {
     const trackBackgroundStyles = [styles.trackBackground, { width: trackWidth }];
     
 
-    const minimumTrackOffset = (TRACK_PADDING_OFFSET / trackWidth) * totalDuration
-
+    // const minimumTrackOffset = (TRACK_PADDING_OFFSET / trackWidth) * totalDuration
+    
     const leftPosition = trimming ? trimmingLeftHandleValue : trimmerLeftHandlePosition
     const rightPosition = trimming ? trimmingRightHandleValue : trimmerRightHandlePosition
 
-    const boundedLeftPosition = Math.max(leftPosition, minimumTrackOffset)
+    const boundedLeftPosition = Math.max(leftPosition, 0)
     const boundedTrimTime = Math.max(rightPosition - boundedLeftPosition, 0)
 
     const actualTrimmerWidth = (boundedTrimTime / totalDuration) * trackWidth;
@@ -223,40 +241,12 @@ export default class Trimmer extends React.Component {
         </ScrollView>
       </View>
     );
-
-    // return (
-    //   <View style={styles.root}>
-    //     <ScrollView
-    //       contentContainerStyle={{ alignItems: 'center’', justifyContent: 'center' }}
-    //       centerContent //centers content when zoom is less than scroll view bounds 
-    //       maximumZoomScale={2}
-    //       minimumZoomScale={1}
-    //       showsHorizontalScrollIndicator={true}
-    //       showsVerticalScrollIndicator={false}
-    //       ref={this.setZoomRef} //helps us get a reference to this ScrollView instance
-    //       style={styles.horizontalScrollView}
-    //     >
-    //       <TouchableHighlight
-    //         onPress={this.handleResetZoomScale}
-    //       >
-    //           <View style={trackBackgroundStyles}>
-
-    //           </View>
-    //       </TouchableHighlight>
-    //     </ScrollView>
-    //   </View>
-    //  )
   }
 }
 
 const styles = StyleSheet.create({
   root: {
     height: 140,
-    // height: 200,
-    // flex: 1,
-    // backgroundColor: '#fff',
-    // alignItems: 'center',
-    // justifyContent: 'center',
   },
   horizontalScrollView: {
     borderColor: 'red',
@@ -291,9 +281,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
   },
   leftHandle: {
-    left: 0,
+    left: -30,
   },
   rightHandle: {
-    right: 0,
+    right: -30,
   }
 });

@@ -102,9 +102,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
-  timeLabel: {
+  time: {
     color: "#222B45",
     fontSize: 14,
     textAlign: 'center',
+    letterSpacing: 1,
   }
 });
