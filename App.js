@@ -46,6 +46,17 @@ export default class App extends React.Component {
       <View style={styles.container}>
         <View style={styles.timeContainer}>
           <View style={styles.timeWrapper}>
+            <Text style={styles.timeLabel}>Total Time</Text>
+            <Text style={styles.time}>{this.formatDuration(totalDuration)}</Text>
+          </View>
+          <View style={styles.timeWrapper}>
+            <Text style={styles.timeLabel}>Trimmed Time</Text>
+            <Text style={styles.time}>{this.formatDuration(trimmerRightHandlePosition - trimmerLeftHandlePosition)}</Text>
+          </View>
+        </View>
+
+        <View style={styles.timeContainer}>
+          <View style={styles.timeWrapper}>
             <Text style={styles.timeLabel}>Start Time</Text>
             <Text style={styles.time}>{this.formatDuration(trimmerLeftHandlePosition)}</Text>
           </View>
