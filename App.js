@@ -8,8 +8,8 @@ const maxTrimDuration = 60000;
 const totalDuration = 180000;
 
 
-const initialLeftHandlePosition = 30000;
-const initialRightHandlePosition = 75000;
+const initialLeftHandlePosition = 0;
+const initialRightHandlePosition = totalDuration;
 
 
 export default class App extends React.Component {

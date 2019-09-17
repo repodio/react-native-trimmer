@@ -209,10 +209,10 @@ export default class Trimmer extends React.Component {
     const boundedTrimTime = Math.max(rightPosition - boundedLeftPosition, 0)
 
     const actualTrimmerWidth = (boundedTrimTime / totalDuration) * trackWidth;
-    const actualTrimmerOffset = (boundedLeftPosition / totalDuration) * trackWidth;
+    const actualTrimmerOffset = ((boundedLeftPosition / totalDuration) * trackWidth) + TRACK_PADDING_OFFSET + HANDLE_WIDTHS;
  
     // console.log('actualTrimmerWidth ', actualTrimmerWidth, 'actualTrimmerOffset ', actualTrimmerOffset, 'boundedLeftPosition ', boundedLeftPosition, )
-    // console.log(trimming, ' actualTrimmerOffset: ', typeof actualTrimmerOffset, ' actualTrimmerWidth: ', typeof actualTrimmerWidth);
+    // console.log(trimming, ' actualTrimmerWidth: ', actualTrimmerWidth, ' actualTrimmerOffset: ', actualTrimmerOffset);
 
     if(typeof actualTrimmerWidth !== 'number') {
       console.log('ERROR render() actualTrimmerWidth !== number. boundedTrimTime', boundedTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
