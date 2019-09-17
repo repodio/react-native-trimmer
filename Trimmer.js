@@ -276,14 +276,18 @@ const styles = StyleSheet.create({
   handle: {
     position: 'absolute',
     width: HANDLE_WIDTHS,
-    height: '100%',
-    // backgroundColor: '#40E1A9',
-    backgroundColor: 'red',
+    height: 106,
+    backgroundColor: '#40E1A9',
+    top: -3,
   },
   leftHandle: {
     left: -30,
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
   },
   rightHandle: {
     right: -30,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
   }
 });
