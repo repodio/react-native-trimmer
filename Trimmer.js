@@ -10,6 +10,8 @@ import {
   TouchableHighlight,
 } from 'react-native';
 
+import * as Arrow from './Arrow';
+
 const { width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
 const TRACK_WIDTH_COEFFICIENT = .1
@@ -244,8 +246,12 @@ export default class Trimmer extends React.Component {
             styles.trimmer,
             { width: actualTrimmerWidth, left: actualTrimmerOffset }
           ]}>
-            <View style={[styles.handle, styles.leftHandle]} {...this.leftHandlePanResponder.panHandlers}></View>
-            <View style={[styles.handle, styles.rightHandle]} {...this.rightHandlePanResponder.panHandlers}></View>
+            <View style={[styles.handle, styles.leftHandle]} {...this.leftHandlePanResponder.panHandlers}>
+              <Arrow.Left />
+            </View>
+            <View style={[styles.handle, styles.rightHandle]} {...this.rightHandlePanResponder.panHandlers}>
+              <Arrow.Right />
+            </View>
           </Animated.View>
         </ScrollView>
       </View>
