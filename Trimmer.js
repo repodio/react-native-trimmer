@@ -139,6 +139,7 @@ export default class Trimmer extends React.Component {
       onPanResponderGrant: (evt, gestureState) => {
         this.lastScaleDy = 0;
         const touches = evt.nativeEvent.touches || {};
+
         if (touches.length == 2) {
           const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
 
@@ -147,9 +148,14 @@ export default class Trimmer extends React.Component {
       },
       onPanResponderMove: (evt, gestureState) => {
         const touches = evt.nativeEvent.touches;
+
         if (touches.length == 2) {
           const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
-          
+
+          if(this.lastScalePinchDist === undefined) {
+            this.lastScalePinchDist = pinchDistance
+          }
+
           const stepValue = pinchDistance - this.lastScalePinchDist;
           this.lastScalePinchDist = pinchDistance
   
@@ -198,7 +204,7 @@ export default class Trimmer extends React.Component {
     const { trimming, trackScale, trimmingLeftHandleValue, trimmingRightHandleValue } = this.state;
 
     const trackWidth = screenWidth * trackScale
-    if(typeof trackWidth !== 'number') {
+    if(isNaN(trackWidth)) {
       console.log('ERROR render() trackWidth !== number. screenWidth', screenWidth, ', trackScale', trackScale, ', ', trackWidth)
     }
     const trackBackgroundStyles = [styles.trackBackground, { width: trackWidth }];
@@ -218,12 +224,12 @@ export default class Trimmer extends React.Component {
     // console.log('actualTrimmerWidth ', actualTrimmerWidth, 'actualTrimmerOffset ', actualTrimmerOffset, 'boundedLeftPosition ', boundedLeftPosition, )
     // console.log(trimming, ' actualTrimmerWidth: ', actualTrimmerWidth, ' actualTrimmerOffset: ', actualTrimmerOffset);
 
-    if(typeof actualTrimmerWidth !== 'number') {
+    if(isNaN(actualTrimmerWidth)) {
       console.log('ERROR render() actualTrimmerWidth !== number. boundedTrimTime', boundedTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
     }
 
     const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
-    console.log('markers', markers.length, totalDuration / MARKER_INCREMENT, (totalDuration / MARKER_INCREMENT) | 0, totalDuration, MARKER_INCREMENT)
+
     return (
       <View style={styles.root}>
         <ScrollView 
@@ -264,8 +270,6 @@ const styles = StyleSheet.create({
     height: 140,
   },
   horizontalScrollView: {
-    borderColor: 'red',
-    borderWidth: 1,
     paddingVertical: 20,
     height: 140,
     overflow: 'hidden',
