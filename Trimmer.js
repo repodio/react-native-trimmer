@@ -17,8 +17,9 @@ const { width: screenWidth, height: screenHeight} = Dimensions.get('window');
 const TRACK_WIDTH_COEFFICIENT = .1
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
-const MINIMUM_TRACK_DURATION = 1000;
-const MAXIMUM_SCALE_VALUE = 5;
+const MINIMUM_TRIM_DURATION = 3000;
+const MAXIMUM_TRIM_DURATION = 60000;
+const MAXIMUM_SCALE_VALUE = 21;
 const MARKER_INCREMENT = 5000;
 const SPECIAL_MARKER_INCREMEMNT = 5;
 const TOTAL_TRACK_WIDTH = screenWidth * 3;
@@ -30,11 +31,13 @@ export default class Trimmer extends React.Component {
     this.initiateAnimator();
     this.state = {
       trimming: false, // this value means the handles are being moved
-      trackScale: 2,         // the scale factor for the track
+      trackScale: 20,         // the scale factor for the track
       trimmingLeftHandleValue: 0,
       trimmingRightHandleValue: 0,
     }
   }
+  
+  clamp = ({ value, min, max }) => Math.min(Math.max(value, min), max);
 
   initiateAnimator = () => {
     
@@ -65,17 +68,15 @@ export default class Trimmer extends React.Component {
       const calculatedTrimmerRightHandlePosition = (trimmerRightHandlePosition / totalDuration) * trackWidth;
 
       const newTrimmerRightHandlePosition = ((calculatedTrimmerRightHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
-      
-      const newBoundedTrimmerRightHandlePosition = 
-        Math.max(
-          Math.min(
-            newTrimmerRightHandlePosition,
-            totalDuration
-          ),
-          trimmerLeftHandlePosition + MINIMUM_TRACK_DURATION
-        )
-      
-      console.log('newBoundedTrimmerRightHandlePosition', newBoundedTrimmerRightHandlePosition)
+    
+      const lowerBound = trimmerLeftHandlePosition + MINIMUM_TRIM_DURATION
+      const upperBound = Math.min(totalDuration, trimmerLeftHandlePosition + MAXIMUM_TRIM_DURATION)
+
+      const newBoundedTrimmerRightHandlePosition = this.clamp({
+        value: newTrimmerRightHandlePosition,
+        min: lowerBound,
+        max: upperBound
+      })
 
       this.setState({ trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition })
     },
@@ -108,15 +109,15 @@ export default class Trimmer extends React.Component {
       
       const newTrimmerLeftHandlePosition = ((calculatedTrimmerLeftHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
       
-      const newBoundedTrimmerLeftHandlePosition = 
-        Math.min(
-          Math.max(
-            newTrimmerLeftHandlePosition,
-            0
-          ),
-          trimmerRightHandlePosition - MINIMUM_TRACK_DURATION
-        )
+      const lowerBound = Math.max(0, trimmerRightHandlePosition - MAXIMUM_TRIM_DURATION)
+      const upperBound = trimmerRightHandlePosition - MINIMUM_TRIM_DURATION
 
+      const newBoundedTrimmerLeftHandlePosition = this.clamp({
+        value: newTrimmerLeftHandlePosition,
+        min: lowerBound,
+        max: upperBound
+      })
+      
       this.setState({ trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition })
     },
     onPanResponderRelease: (evt, gestureState) => {
@@ -200,10 +201,25 @@ export default class Trimmer extends React.Component {
   render() {
     const {
       maxTrimDuration,
+      minimumTrimDuration,
       totalDuration,
       trimmerLeftHandlePosition,
       trimmerRightHandlePosition
     } = this.props;
+
+    if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
+      console.error('maxTrimDuration is less than trimRightHandlePosition minus trimmerLeftHandlePosition', {
+        minimumTrimDuration, trimmerRightHandlePosition, trimmerLeftHandlePosition
+      })
+      return null
+    }
+
+    if(minimumTrimDuration > trimmerRightHandlePosition - trimmerLeftHandlePosition) {
+      console.error('minimumTrimDuration is less than trimRightHandlePosition minus trimmerLeftHandlePosition', {
+        minimumTrimDuration, trimmerRightHandlePosition, trimmerLeftHandlePosition
+      })
+      return null
+    }
 
     const { trimming, trackScale, trimmingLeftHandleValue, trimmingRightHandleValue } = this.state;
 

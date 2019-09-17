@@ -5,11 +5,11 @@ import moment from 'moment';
 
 
 const maxTrimDuration = 60000;
-const totalDuration = 180000;
+const minimumTrimDuration = 3000;
+const totalDuration = 1800000
 
-
-const initialLeftHandlePosition = 0;
-const initialRightHandlePosition = totalDuration;
+const initialLeftHandlePosition = 36000;
+const initialRightHandlePosition = 75000;
 
 
 export default class App extends React.Component {
@@ -68,10 +68,11 @@ export default class App extends React.Component {
         <Trimmer
           onLeftHandleChange={this.onLeftHandleChange}
           onRightHandleChange={this.onRightHandleChange}
-          maxTrimDuration={maxTrimDuration}
           totalDuration={totalDuration}
           trimmerLeftHandlePosition={trimmerLeftHandlePosition}
           trimmerRightHandlePosition={trimmerRightHandlePosition}
+          minimumTrimDuration={minimumTrimDuration}
+          maxTrimDuration={maxTrimDuration}
         />
       </View>
     );
