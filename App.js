@@ -5,8 +5,8 @@ import moment from 'moment';
 
 
 const maxTrimDuration = 60000;
-const minimumTrimDuration = 3000;
-const totalDuration = 1800000
+const minimumTrimDuration = 1000;
+const totalDuration = 180000
 
 const initialLeftHandlePosition = 36000;
 const initialRightHandlePosition = 75000;

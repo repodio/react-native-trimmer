@@ -17,9 +17,9 @@ const { width: screenWidth, height: screenHeight} = Dimensions.get('window');
 const TRACK_WIDTH_COEFFICIENT = .1
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
-const MINIMUM_TRIM_DURATION = 3000;
+const MINIMUM_TRIM_DURATION = 1000;
 const MAXIMUM_TRIM_DURATION = 60000;
-const MAXIMUM_SCALE_VALUE = 21;
+const MAXIMUM_SCALE_VALUE = 5;
 const MARKER_INCREMENT = 5000;
 const SPECIAL_MARKER_INCREMEMNT = 5;
 const TOTAL_TRACK_WIDTH = screenWidth * 3;
@@ -31,7 +31,7 @@ export default class Trimmer extends React.Component {
     this.initiateAnimator();
     this.state = {
       trimming: false, // this value means the handles are being moved
-      trackScale: 20,         // the scale factor for the track
+      trackScale: 2,         // the scale factor for the track
       trimmingLeftHandleValue: 0,
       trimmingRightHandleValue: 0,
     }
