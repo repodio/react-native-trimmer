@@ -53,6 +53,11 @@ export default class App extends React.Component {
 
   formatDuration = milliseconds => moment.utc(milliseconds).format('HH:mm:ss')
 
+  onScrubbingComplete = (newValue) => {
+    console.log('onScrubbingComplete', newValue)
+    this.setState({ playing: false, scrubberPosition: newValue })
+  }
+
   render() {
     const {
       trimmerLeftHandlePosition,
@@ -65,8 +70,8 @@ export default class App extends React.Component {
       <View style={styles.container}>
         {
           playling
-            ? <Button title="Pause" color="40E1A9" onPress={this.pauseScrubber}/>
-            : <Button title="Play" color="40E1A9" onPress={this.playScrubber}/>
+            ? <Button title="Pause" color="#40E1A9" onPress={this.pauseScrubber}/>
+            : <Button title="Play" color="#40E1A9" onPress={this.playScrubber}/>
         }
         <View style={styles.timeContainer}>
           <View style={styles.timeWrapper}>
@@ -103,6 +108,7 @@ export default class App extends React.Component {
           trackBackgroundColor="#F7F9FC"
           trackBorderColor="#EDF1F7"
           scrubberPosition={scrubberPosition}
+          onScrubbingComplete={this.onScrubbingComplete}
         />
         {/* <Trimmer
           onLeftHandleChange={this.onLeftHandleChange}

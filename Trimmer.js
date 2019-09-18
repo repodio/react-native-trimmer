@@ -54,7 +54,60 @@ export default class Trimmer extends React.Component {
     this.trackPanResponder = this.createTrackPanResponder()
     this.leftHandlePanResponder = this.createLeftHandlePanResponder()
     this.rightHandlePanResponder = this.createRightHandlePanResponder()
+    this.scrubHandlePanResponder = this.createScrubHandlePanResponder()
   }
+
+
+  createScrubHandlePanResponder = () => PanResponder.create({
+    onStartShouldSetPanResponder: (evt, gestureState) => true,
+    onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+    onMoveShouldSetPanResponder: (evt, gestureState) => true,
+    onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+    onPanResponderGrant: (evt, gestureState) => {
+      console.log('createScrubHandlePanResponder SCUBBING TRUE')
+
+      this.setState({
+        scrubbing: true,
+        internalScrubbingPosition: this.props.scrubberPosition,
+      })
+    },
+    onPanResponderMove: (evt, gestureState) => {
+
+      console.log('createScrubHandlePanResponder MOVE')
+
+      const { trackScale } = this.state;
+      const {
+        scrubberPosition,
+        trimmerLeftHandlePosition,
+        trimmerRightHandlePosition,
+        totalDuration,
+      } = this.props;
+      
+      const trackWidth = (screenWidth) * trackScale
+      const calculatedScrubberPosition = (scrubberPosition / totalDuration) * trackWidth;
+      
+      const newScrubberPosition = ((calculatedScrubberPosition + gestureState.dx) / trackWidth ) * totalDuration
+      
+      const lowerBound = Math.max(0, trimmerLeftHandlePosition)
+      const upperBound = trimmerRightHandlePosition
+
+      const newBoundedScrubberPosition = this.clamp({
+        value: newScrubberPosition,
+        min: lowerBound,
+        max: upperBound
+      })
+      
+      this.setState({ internalScrubbingPosition: newBoundedScrubberPosition })
+    },
+    onPanResponderRelease: (evt, gestureState) => {
+      console.log('createScrubHandlePanResponder SCUBBING FALSE')
+
+      this.handleScrubbingValueChange(this.state.internalScrubbingPosition)
+      this.setState({ scrubbing: false })
+    },
+    onPanResponderTerminationRequest: (evt, gestureState) => true,
+    onShouldBlockNativeResponder: (evt, gestureState) => true
+  })
 
   createRightHandlePanResponder = () => PanResponder.create({
     onStartShouldSetPanResponder: (evt, gestureState) => true,
@@ -157,10 +210,10 @@ export default class Trimmer extends React.Component {
   
   createTrackPanResponder = () => PanResponder.create({
       // Ask to be the responder:
-      onStartShouldSetPanResponder: (evt, gestureState) => !this.state.trimming,
-      onStartShouldSetPanResponderCapture: (evt, gestureState) => !this.state.trimming,
-      onMoveShouldSetPanResponder: (evt, gestureState) => !this.state.trimming,
-      onMoveShouldSetPanResponderCapture: (evt, gestureState) => !this.state.trimming,
+      onStartShouldSetPanResponder: (evt, gestureState) => !this.state.scrubbing && !this.state.trimming,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => !this.state.scrubbing && !this.state.trimming,
+      onMoveShouldSetPanResponder: (evt, gestureState) => !this.state.scrubbing && !this.state.trimming,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => !this.state.scrubbing && !this.state.trimming,
       onPanResponderGrant: (evt, gestureState) => {
         this.lastScaleDy = 0;
         const touches = evt.nativeEvent.touches || {};
@@ -170,8 +223,13 @@ export default class Trimmer extends React.Component {
 
           this.lastScalePinchDist = pinchDistance;
         } 
+        
+        console.log('createTrackPanResponder GRANT, scrubbing: ', this.state.scrubbing)
+
       },
       onPanResponderMove: (evt, gestureState) => {
+
+
         const touches = evt.nativeEvent.touches;
         const { maxScaleValue = MAXIMUM_SCALE_VALUE } = this.props;
 
@@ -209,14 +267,19 @@ export default class Trimmer extends React.Component {
       onShouldBlockNativeResponder: (evt, gestureState) => true
   })
 
+  handleScrubbingValueChange = (newScrubPosition) => {
+    const { onScrubbingComplete } = this.props;
+    onScrubbingComplete && onScrubbingComplete(newScrubPosition | 0)
+  }
+
   handleLeftHandleSizeChange = (newPosition) => {
     const { onLeftHandleChange } = this.props;
-    onLeftHandleChange(newPosition | 0)
+    onLeftHandleChange && onLeftHandleChange(newPosition | 0)
   }
 
   handleRightHandleSizeChange = (newPosition) => {
     const { onRightHandleChange } = this.props;
-    onRightHandleChange(newPosition | 0)
+    onRightHandleChange && onRightHandleChange(newPosition | 0)
   }
 
   render() {
@@ -276,12 +339,12 @@ export default class Trimmer extends React.Component {
 
     const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
 
-    console.log("scrubPosition", scrubPosition, "boundedScrubPosition", boundedScrubPosition)
+    console.log(scrubbing, "scrubPosition", scrubPosition, "leftPosition", boundedLeftPosition, 'rightPosition', rightPosition)
 
     return (
       <View style={styles.root}>
         <ScrollView 
-          scrollEnabled={!trimming}
+          scrollEnabled={!trimming && !scrubbing}
           style={[
             styles.horizontalScrollView,
             { transform: [{ scaleX: 1.0 }] },
@@ -297,7 +360,11 @@ export default class Trimmer extends React.Component {
                   styles.scrubberContainer,
                   { left: actualScrubPosition },
                 ]} >
-                  <View style={styles.scrubberHead} />
+                  <View
+                    hitSlop={{top: 20, bottom: 5, right: 20, left: 20}}
+                    {...this.scrubHandlePanResponder.panHandlers}
+                    style={styles.scrubberHead}
+                  />
                   <View style={styles.scrubberTail} />
                 </View>
               )
