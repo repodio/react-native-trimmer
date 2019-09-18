@@ -18,6 +18,7 @@ const { width: screenWidth, height: screenHeight} = Dimensions.get('window');
 const MINIMUM_TRIM_DURATION = 1000;
 const MAXIMUM_TRIM_DURATION = 60000;
 const MAXIMUM_SCALE_VALUE = 5;
+const ZOOM_MULTIPLIER = 5;
 
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
@@ -219,10 +220,8 @@ export default class Trimmer extends React.Component {
         } 
       },
       onPanResponderMove: (evt, gestureState) => {
-
-
         const touches = evt.nativeEvent.touches;
-        const { maxScaleValue = MAXIMUM_SCALE_VALUE } = this.props;
+        const { maximumZoomLevel = MAXIMUM_SCALE_VALUE, zoomMultiplier = ZOOM_MULTIPLIER } = this.props;
 
         if (touches.length == 2) {
           const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
@@ -234,22 +233,22 @@ export default class Trimmer extends React.Component {
           const stepValue = pinchDistance - this.lastScalePinchDist;
           this.lastScalePinchDist = pinchDistance
   
-          const scaleStep = (stepValue * 2) / screenHeight
+          const scaleStep = (stepValue * zoomMultiplier) / screenHeight
           const { trackScale } = this.state;
   
           const newTrackScaleValue = trackScale + scaleStep;
-          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, maxScaleValue), 1)
+          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, maximumZoomLevel), 1)
   
           this.setState({trackScale: newBoundedTrackScaleValue})
         } else {
           const stepValue = (gestureState.dy - this.lastScaleDy);
           this.lastScaleDy = gestureState.dy
   
-          const scaleStep = (stepValue * 2) / screenHeight
+          const scaleStep = (stepValue * zoomMultiplier) / screenHeight
           const { trackScale } = this.state;
   
           const newTrackScaleValue = trackScale + scaleStep;
-          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, maxScaleValue), 1)
+          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, maximumZoomLevel), 1)
   
           this.setState({trackScale: newBoundedTrackScaleValue})
         }
@@ -303,7 +302,16 @@ export default class Trimmer extends React.Component {
       return null
     }
 
-    const { trimming, scrubbing, internalScrubbingPosition, trackScale, trimmingLeftHandleValue, trimmingRightHandleValue } = this.state;
+    const {
+      trimming,
+      scrubbing,
+      internalScrubbingPosition,
+      trackScale,
+      trimmingLeftHandleValue,
+      trimmingRightHandleValue
+    } = this.state;
+
+    console.log('trackScale', trackScale)
 
     const trackWidth = screenWidth * trackScale
     if(isNaN(trackWidth)) {
@@ -413,6 +421,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   trackBackground: {
+    overflow: 'hidden',
     marginVertical: 20,
     backgroundColor: TRACK_BACKGROUND_COLOR,
     borderRadius: 5,

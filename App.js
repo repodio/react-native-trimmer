@@ -6,7 +6,7 @@ import moment from 'moment';
 
 const maxTrimDuration = 60000;
 const minimumTrimDuration = 1000;
-const totalDuration = 180000
+const totalDuration = 1800000
 
 const initialLeftHandlePosition = 0;
 const initialRightHandlePosition = 36000;
@@ -97,7 +97,8 @@ export default class App extends React.Component {
           trimmerRightHandlePosition={trimmerRightHandlePosition}
           minimumTrimDuration={minimumTrimDuration}
           maxTrimDuration={maxTrimDuration}
-          maxScaleValue={20}
+          maximumZoomLevel={20}
+          zoomMultiplier={20}
           tintColor="#f638dc"
           markerColor="#5a3d5c"
           trackBackgroundColor="#382039"
