@@ -78,6 +78,7 @@ export default class Trimmer extends React.Component {
         scrubbing: true,
         internalScrubbingPosition: this.props.scrubberPosition,
       })
+      this.handleScrubberPressIn()
     },
     onPanResponderMove: (evt, gestureState) => {
       const { trackScale } = this.state;
@@ -123,6 +124,7 @@ export default class Trimmer extends React.Component {
         trimmingRightHandleValue: this.props.trimmerRightHandlePosition,
         trimmingLeftHandleValue: this.props.trimmerLeftHandlePosition,
       })
+      this.handleRightHandlePressIn()
     },
     onPanResponderMove: (evt, gestureState) => {
       const { trackScale } = this.state;
@@ -169,6 +171,7 @@ export default class Trimmer extends React.Component {
         trimmingRightHandleValue: this.props.trimmerRightHandlePosition,
         trimmingLeftHandleValue: this.props.trimmerLeftHandlePosition,
       })
+      this.handleLeftHandlePressIn()
     },
     onPanResponderMove: (evt, gestureState) => {
       const { trackScale } = this.state;
@@ -279,6 +282,21 @@ export default class Trimmer extends React.Component {
   handleRightHandleSizeChange = (newPosition) => {
     const { onRightHandleChange } = this.props;
     onRightHandleChange && onRightHandleChange(newPosition | 0)
+  }
+
+  handleLeftHandlePressIn = () => {
+    const { onLeftHandlePressIn } = this.props;
+    onLeftHandlePressIn && onLeftHandlePressIn()
+  }
+
+  handleRightHandlePressIn = () => {
+    const { onRightHandlePressIn } = this.props;
+    onRightHandlePressIn && onRightHandlePressIn()
+  }
+
+  handleScrubberPressIn = () => {
+    const { onScrubberPressIn } = this.props;
+    onScrubberPressIn && onScrubberPressIn()
   }
 
   render() {

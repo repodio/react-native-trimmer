@@ -108,6 +108,9 @@ export default class App extends React.Component {
           scrubberColor="#b7e778"
           scrubberPosition={scrubberPosition}
           onScrubbingComplete={this.onScrubbingComplete}
+          onLeftHandlePressIn={() => console.log('onLeftHandlePressIn')}
+          onRightHandlePressIn={() => console.log('onRightHandlePressIn')}
+          onScrubberPressIn={() => console.log('onScrubberPressIn')}
         />
       </View>
     );
