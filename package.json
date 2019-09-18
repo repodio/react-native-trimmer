@@ -1,22 +1,30 @@
 {
-  "main": "node_modules/expo/AppEntry.js",
+  "name": "react-native-trimmer",
+  "version": "1.0.0",
+  "description": "A Trimmer component that renders in iOS and Android and built entirely in React Native.",
+  "main": "index.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "eject": "expo eject"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "expo": "^34.0.1",
-    "moment": "^2.24.0",
-    "react": "16.8.3",
-    "react-dom": "^16.8.6",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-34.0.0.tar.gz",
-    "react-native-web": "^0.11.4"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/repodio/react-native-trimmer.git"
   },
-  "devDependencies": {
-    "babel-preset-expo": "^6.0.0"
+  "keywords": [
+    "trimmer",
+    "react-native",
+    "ui",
+    "ios",
+    "android",
+    "audio",
+    "video",
+    "media",
+    "controls"
+  ],
+  "author": "Repod",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/repodio/react-native-trimmer/issues"
   },
-  "private": true
+  "homepage": "https://github.com/repodio/react-native-trimmer#readme"
 }
