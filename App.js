@@ -6,7 +6,7 @@ import moment from 'moment';
 
 const maxTrimDuration = 60000;
 const minimumTrimDuration = 1000;
-const totalDuration = 180000
+const totalDuration = 1800000
 
 const initialLeftHandlePosition = 0;
 const initialRightHandlePosition = 36000;
@@ -65,8 +65,8 @@ export default class App extends React.Component {
       <View style={styles.container}>
         {
           playling
-            ? <Button title="Pause" color="#f638dc" onPress={this.pauseScrubber}/>
-            : <Button title="Play" color="#f638dc" onPress={this.playScrubber}/>
+            ? <Button title="Pause" color="#63707e" onPress={this.pauseScrubber}/>
+            : <Button title="Play" color="#63707e" onPress={this.playScrubber}/>
         }
         <View style={styles.timeContainer}>
           <View style={styles.timeWrapper}>
@@ -101,11 +101,11 @@ export default class App extends React.Component {
           zoomMultiplier={20}
           initialZoomValue={2}
           scaleInOnInit={true}
-          tintColor="#f638dc"
-          markerColor="#5a3d5c"
-          trackBackgroundColor="#382039"
-          trackBorderColor="#5a3d5c"
-          scrubberColor="#b7e778"
+          tintColor="#93b5b3"
+          markerColor="#c8dad3"
+          trackBackgroundColor="#f2f6f5"
+          trackBorderColor="#c8dad3"
+          scrubberColor="#63707e"
           scrubberPosition={scrubberPosition}
           onScrubbingComplete={this.onScrubbingComplete}
           onLeftHandlePressIn={() => console.log('onLeftHandlePressIn')}
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   time: {
-    color: "#222B45",
+    color: "#63707e",
     fontSize: 14,
     textAlign: 'center',
     letterSpacing: 1,

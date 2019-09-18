@@ -27,11 +27,11 @@ const HANDLE_WIDTHS = 30;
 const MARKER_INCREMENT = 5000;
 const SPECIAL_MARKER_INCREMEMNT = 5;
 
-const TRACK_BACKGROUND_COLOR = '#F7F9FC';
-const TRACK_BORDER_COLOR = '#EDF1F7';
-const MARKER_COLOR = '#EDF1F7';
-const TINT_COLOR = '#40E1A9';
-const SCRUBBER_COLOR = '#EDF1F7'
+const TRACK_BACKGROUND_COLOR = '#f2f6f5';
+const TRACK_BORDER_COLOR = '#c8dad3';
+const MARKER_COLOR = '#c8dad3';
+const TINT_COLOR = '#93b5b3';
+const SCRUBBER_COLOR = '#63707e'
 
 export default class Trimmer extends React.Component {
   constructor(props) {
