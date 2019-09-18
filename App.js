@@ -73,6 +73,39 @@ export default class App extends React.Component {
           trimmerRightHandlePosition={trimmerRightHandlePosition}
           minimumTrimDuration={minimumTrimDuration}
           maxTrimDuration={maxTrimDuration}
+          maxScaleValue={20}
+          tintColor="#40E1A9"
+          markerColor="#EDF1F7"
+          trackBackgroundColor="#F7F9FC"
+          trackBorderColor="#EDF1F7"
+        />
+        <Trimmer
+          onLeftHandleChange={this.onLeftHandleChange}
+          onRightHandleChange={this.onRightHandleChange}
+          totalDuration={totalDuration}
+          trimmerLeftHandlePosition={trimmerLeftHandlePosition}
+          trimmerRightHandlePosition={trimmerRightHandlePosition}
+          minimumTrimDuration={minimumTrimDuration}
+          maxTrimDuration={maxTrimDuration}
+          maxScaleValue={20}
+          tintColor="#f638dc"
+          markerColor="#5a3d5c"
+          trackBackgroundColor="#382039"
+          trackBorderColor="#5a3d5c"
+        />
+        <Trimmer
+          onLeftHandleChange={this.onLeftHandleChange}
+          onRightHandleChange={this.onRightHandleChange}
+          totalDuration={totalDuration}
+          trimmerLeftHandlePosition={trimmerLeftHandlePosition}
+          trimmerRightHandlePosition={trimmerRightHandlePosition}
+          minimumTrimDuration={minimumTrimDuration}
+          maxTrimDuration={maxTrimDuration}
+          maxScaleValue={20}
+          tintColor="#c0ffb3"
+          markerColor="#3c9d9b"
+          trackBackgroundColor="#394a6d"
+          trackBorderColor="#3c9d9b"
         />
       </View>
     );

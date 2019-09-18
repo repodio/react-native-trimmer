@@ -14,15 +14,21 @@ import * as Arrow from './Arrow';
 
 const { width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
-const TRACK_WIDTH_COEFFICIENT = .1
-const TRACK_PADDING_OFFSET = 10;
-const HANDLE_WIDTHS = 30;
+
 const MINIMUM_TRIM_DURATION = 1000;
 const MAXIMUM_TRIM_DURATION = 60000;
 const MAXIMUM_SCALE_VALUE = 5;
+
+const TRACK_PADDING_OFFSET = 10;
+const HANDLE_WIDTHS = 30;
+
 const MARKER_INCREMENT = 5000;
 const SPECIAL_MARKER_INCREMEMNT = 5;
-const TOTAL_TRACK_WIDTH = screenWidth * 3;
+
+const TRACK_BACKGROUND_COLOR = '#F7F9FC';
+const TRACK_BORDER_COLOR = '#EDF1F7';
+const MARKER_COLOR = '#EDF1F7';
+const TINT_COLOR = '#40E1A9';
 
 export default class Trimmer extends React.Component {
   constructor(props) {
@@ -62,15 +68,21 @@ export default class Trimmer extends React.Component {
     },
     onPanResponderMove: (evt, gestureState) => {
       const { trackScale } = this.state;
-      const { trimmerRightHandlePosition, trimmerLeftHandlePosition, totalDuration } = this.props;
+      const { 
+        trimmerRightHandlePosition,
+        trimmerLeftHandlePosition,
+        totalDuration,
+        minimumTrimDuration = MINIMUM_TRIM_DURATION,
+        maxTrimDuration = MAXIMUM_TRIM_DURATION,
+      } = this.props;
       
       const trackWidth = screenWidth * trackScale
       const calculatedTrimmerRightHandlePosition = (trimmerRightHandlePosition / totalDuration) * trackWidth;
 
       const newTrimmerRightHandlePosition = ((calculatedTrimmerRightHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
     
-      const lowerBound = trimmerLeftHandlePosition + MINIMUM_TRIM_DURATION
-      const upperBound = Math.min(totalDuration, trimmerLeftHandlePosition + MAXIMUM_TRIM_DURATION)
+      const lowerBound = trimmerLeftHandlePosition + minimumTrimDuration
+      const upperBound = Math.min(totalDuration, trimmerLeftHandlePosition + maxTrimDuration)
 
       const newBoundedTrimmerRightHandlePosition = this.clamp({
         value: newTrimmerRightHandlePosition,
@@ -102,15 +114,21 @@ export default class Trimmer extends React.Component {
     },
     onPanResponderMove: (evt, gestureState) => {
       const { trackScale } = this.state;
-      const { trimmerLeftHandlePosition, trimmerRightHandlePosition, totalDuration } = this.props;
+      const {
+        trimmerLeftHandlePosition,
+        trimmerRightHandlePosition,
+        totalDuration,
+        minimumTrimDuration = MINIMUM_TRIM_DURATION,
+        maxTrimDuration = MAXIMUM_TRIM_DURATION,
+      } = this.props;
       
       const trackWidth = (screenWidth) * trackScale
       const calculatedTrimmerLeftHandlePosition = (trimmerLeftHandlePosition / totalDuration) * trackWidth;
       
       const newTrimmerLeftHandlePosition = ((calculatedTrimmerLeftHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
       
-      const lowerBound = Math.max(0, trimmerRightHandlePosition - MAXIMUM_TRIM_DURATION)
-      const upperBound = trimmerRightHandlePosition - MINIMUM_TRIM_DURATION
+      const lowerBound = Math.max(0, trimmerRightHandlePosition - maxTrimDuration)
+      const upperBound = trimmerRightHandlePosition - minimumTrimDuration
 
       const newBoundedTrimmerLeftHandlePosition = this.clamp({
         value: newTrimmerLeftHandlePosition,
@@ -153,6 +171,7 @@ export default class Trimmer extends React.Component {
       },
       onPanResponderMove: (evt, gestureState) => {
         const touches = evt.nativeEvent.touches;
+        const { maxScaleValue = MAXIMUM_SCALE_VALUE } = this.props;
 
         if (touches.length == 2) {
           const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
@@ -168,7 +187,7 @@ export default class Trimmer extends React.Component {
           const { trackScale } = this.state;
   
           const newTrackScaleValue = trackScale + scaleStep;
-          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, MAXIMUM_SCALE_VALUE), 1)
+          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, maxScaleValue), 1)
   
           this.setState({trackScale: newBoundedTrackScaleValue})
         } else {
@@ -179,7 +198,7 @@ export default class Trimmer extends React.Component {
           const { trackScale } = this.state;
   
           const newTrackScaleValue = trackScale + scaleStep;
-          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, MAXIMUM_SCALE_VALUE), 1)
+          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, maxScaleValue), 1)
   
           this.setState({trackScale: newBoundedTrackScaleValue})
         }
@@ -204,7 +223,11 @@ export default class Trimmer extends React.Component {
       minimumTrimDuration,
       totalDuration,
       trimmerLeftHandlePosition,
-      trimmerRightHandlePosition
+      trimmerRightHandlePosition,
+      trackBackgroundColor = TRACK_BACKGROUND_COLOR,
+      trackBorderColor = TRACK_BORDER_COLOR,
+      markerColor = MARKER_COLOR,
+      tintColor = TINT_COLOR,
     } = this.props;
 
     if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
@@ -227,11 +250,11 @@ export default class Trimmer extends React.Component {
     if(isNaN(trackWidth)) {
       console.log('ERROR render() trackWidth !== number. screenWidth', screenWidth, ', trackScale', trackScale, ', ', trackWidth)
     }
-    const trackBackgroundStyles = [styles.trackBackground, { width: trackWidth }];
-    
-
-    // const minimumTrackOffset = (TRACK_PADDING_OFFSET / trackWidth) * totalDuration
-    
+    const trackBackgroundStyles = [
+      styles.trackBackground,
+      { width: trackWidth, backgroundColor: trackBackgroundColor, borderColor: trackBorderColor
+    }];
+        
     const leftPosition = trimming ? trimmingLeftHandleValue : trimmerLeftHandlePosition
     const rightPosition = trimming ? trimmingRightHandleValue : trimmerRightHandlePosition
 
@@ -241,9 +264,6 @@ export default class Trimmer extends React.Component {
     const actualTrimmerWidth = (boundedTrimTime / totalDuration) * trackWidth;
     const actualTrimmerOffset = ((boundedLeftPosition / totalDuration) * trackWidth) + TRACK_PADDING_OFFSET + HANDLE_WIDTHS;
  
-    // console.log('actualTrimmerWidth ', actualTrimmerWidth, 'actualTrimmerOffset ', actualTrimmerOffset, 'boundedLeftPosition ', boundedLeftPosition, )
-    // console.log(trimming, ' actualTrimmerWidth: ', actualTrimmerWidth, ' actualTrimmerOffset: ', actualTrimmerOffset);
-
     if(isNaN(actualTrimmerWidth)) {
       console.log('ERROR render() actualTrimmerWidth !== number. boundedTrimTime', boundedTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
     }
@@ -270,7 +290,8 @@ export default class Trimmer extends React.Component {
                     style={[
                       styles.marker,
                       i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
-                      i === 0 || i === markers.length - 1 ? styles.hiddenMarker : {}
+                      i === 0 || i === markers.length - 1 ? styles.hiddenMarker : {},
+                      { backgroundColor: markerColor }
                     ]}/>
                 ))
               }
@@ -278,13 +299,14 @@ export default class Trimmer extends React.Component {
           </View>
           <Animated.View style={[
             styles.trimmer,
-            { width: actualTrimmerWidth, left: actualTrimmerOffset }
+            { width: actualTrimmerWidth, left: actualTrimmerOffset },
+            { borderColor: tintColor }
           ]}>
-            <View style={styles.selection}/>
-            <View style={[styles.handle, styles.leftHandle]} {...this.leftHandlePanResponder.panHandlers}>
+            <View style={[styles.selection, { backgroundColor: tintColor }]}/>
+            <View style={[styles.handle, styles.leftHandle, { backgroundColor: tintColor }]} {...this.leftHandlePanResponder.panHandlers}>
               <Arrow.Left />
             </View>
-            <View style={[styles.handle, styles.rightHandle]} {...this.rightHandlePanResponder.panHandlers}>
+            <View style={[styles.handle, styles.rightHandle, { backgroundColor: tintColor }]} {...this.rightHandlePanResponder.panHandlers}>
               <Arrow.Right />
             </View>
           </Animated.View>
@@ -305,10 +327,10 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   trackBackground: {
-    backgroundColor: '#F7F9FC',
+    backgroundColor: TRACK_BACKGROUND_COLOR,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: '#EDF1F7',
+    borderColor: TRACK_BORDER_COLOR,
     height: 100,
     marginHorizontal: HANDLE_WIDTHS + TRACK_PADDING_OFFSET,
   },
@@ -316,7 +338,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: TRACK_PADDING_OFFSET,
     top: -3,
-    borderColor: '#40E1A9',
+    borderColor: TINT_COLOR,
     borderWidth: 3,
     borderRadius: 5,
     height: 106,
@@ -325,7 +347,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: HANDLE_WIDTHS,
     height: 106,
-    backgroundColor: '#40E1A9',
+    backgroundColor: TINT_COLOR,
     top: -3,
   },
   leftHandle: {
@@ -340,7 +362,7 @@ const styles = StyleSheet.create({
   },
   selection: {
     opacity: 0.2,
-    backgroundColor: '#40E1A9',
+    backgroundColor: TINT_COLOR,
     width: '100%',
     height: '100%',
   },
@@ -352,7 +374,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   marker: {
-    backgroundColor: '#EDF1F7', // marker color,
+    backgroundColor: MARKER_COLOR, // marker color,
     width: 2,
     height: 8,
     // borderColor: 'red',
