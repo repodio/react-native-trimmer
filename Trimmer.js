@@ -349,7 +349,6 @@ export default class Trimmer extends React.Component {
           style={[
             styles.horizontalScrollView,
             { transform: [{ scaleX: 1.0 }] },
-            { borderColor: 'pink', borderWidth: 1, },
           ]} 
           horizontal
           {...this.trackPanResponder.panHandlers}
@@ -498,7 +497,7 @@ const styles = StyleSheet.create({
   },
   scrubberTail: {
     backgroundColor: 'red',
-    height: '100%',
+    height: 123,
     width: 3,
     borderBottomLeftRadius: 3,
     borderBottomRightRadius: 3,
