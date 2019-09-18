@@ -17,8 +17,9 @@ const { width: screenWidth, height: screenHeight} = Dimensions.get('window');
 
 const MINIMUM_TRIM_DURATION = 1000;
 const MAXIMUM_TRIM_DURATION = 60000;
-const MAXIMUM_SCALE_VALUE = 5;
+const MAXIMUM_SCALE_VALUE = 50;
 const ZOOM_MULTIPLIER = 5;
+const INITIAL_ZOOM = 2;
 
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
@@ -36,11 +37,18 @@ export default class Trimmer extends React.Component {
   constructor(props) {
     super(props);
 
+    let trackScale = props.initialZoomValue || INITIAL_ZOOM
+    if(props.scaleInOnInit) {
+      const percentTrimmed = (props.trimmerRightHandlePosition - props.trimmerLeftHandlePosition) / props.totalDuration
+      const smartScaleValue = (2 / percentTrimmed) / 5
+      trackScale = this.clamp({ value: smartScaleValue, min: 1, max: props.maximumZoomLevel || MAXIMUM_SCALE_VALUE})
+    }
+
     this.initiateAnimator();
     this.state = {
-      scrubbing: false,               // this value means scrubbing is currently happening
-      trimming: false,                // this value means the handles are being moved
-      trackScale: 2,                  // the scale factor for the track
+      scrubbing: false,                                       // this value means scrubbing is currently happening
+      trimming: false,                                        // this value means the handles are being moved
+      trackScale,                                             // the scale factor for the track
       trimmingLeftHandleValue: 0,
       trimmingRightHandleValue: 0,
       internalScrubbingPosition: 0,
@@ -310,8 +318,6 @@ export default class Trimmer extends React.Component {
       trimmingLeftHandleValue,
       trimmingRightHandleValue
     } = this.state;
-
-    console.log('trackScale', trackScale)
 
     const trackWidth = screenWidth * trackScale
     if(isNaN(trackWidth)) {
