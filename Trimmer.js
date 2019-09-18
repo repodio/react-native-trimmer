@@ -29,6 +29,7 @@ const TRACK_BACKGROUND_COLOR = '#F7F9FC';
 const TRACK_BORDER_COLOR = '#EDF1F7';
 const MARKER_COLOR = '#EDF1F7';
 const TINT_COLOR = '#40E1A9';
+const SCRUBBER_COLOR = '#EDF1F7'
 
 export default class Trimmer extends React.Component {
   constructor(props) {
@@ -280,11 +281,12 @@ export default class Trimmer extends React.Component {
       totalDuration,
       trimmerLeftHandlePosition,
       trimmerRightHandlePosition,
+      scrubberPosition,
       trackBackgroundColor = TRACK_BACKGROUND_COLOR,
       trackBorderColor = TRACK_BORDER_COLOR,
       markerColor = MARKER_COLOR,
       tintColor = TINT_COLOR,
-      scrubberPosition, 
+      scrubberColor = SCRUBBER_COLOR,
     } = this.props;
 
     if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
@@ -351,9 +353,9 @@ export default class Trimmer extends React.Component {
                   <View
                     hitSlop={{top: 20, bottom: 5, right: 20, left: 20}}
                     {...this.scrubHandlePanResponder.panHandlers}
-                    style={styles.scrubberHead}
+                    style={[styles.scrubberHead, { backgroundColor: scrubberColor }]}
                   />
-                  <View style={styles.scrubberTail} />
+                  <View style={[styles.scrubberTail, { backgroundColor: scrubberColor }]} />
                 </View>
               )
               : null
@@ -459,7 +461,6 @@ const styles = StyleSheet.create({
     backgroundColor: MARKER_COLOR, // marker color,
     width: 2,
     height: 8,
-    // borderColor: 'red',
     borderRadius: 2,
   },
   specialMarker: {
@@ -478,13 +479,13 @@ const styles = StyleSheet.create({
   },
   scrubberHead: {
     position: 'absolute',
-    backgroundColor: 'red',
+    backgroundColor: SCRUBBER_COLOR,
     width: 14,
     height: 14,
     borderRadius: 14,
   },
   scrubberTail: {
-    backgroundColor: 'red',
+    backgroundColor: SCRUBBER_COLOR,
     height: 123,
     width: 3,
     borderBottomLeftRadius: 3,

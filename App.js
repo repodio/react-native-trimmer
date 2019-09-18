@@ -65,8 +65,8 @@ export default class App extends React.Component {
       <View style={styles.container}>
         {
           playling
-            ? <Button title="Pause" color="#40E1A9" onPress={this.pauseScrubber}/>
-            : <Button title="Play" color="#40E1A9" onPress={this.playScrubber}/>
+            ? <Button title="Pause" color="#f638dc" onPress={this.pauseScrubber}/>
+            : <Button title="Play" color="#f638dc" onPress={this.playScrubber}/>
         }
         <View style={styles.timeContainer}>
           <View style={styles.timeWrapper}>
@@ -102,6 +102,7 @@ export default class App extends React.Component {
           markerColor="#5a3d5c"
           trackBackgroundColor="#382039"
           trackBorderColor="#5a3d5c"
+          scrubberColor="#b7e778"
           scrubberPosition={scrubberPosition}
           onScrubbingComplete={this.onScrubbingComplete}
         />
