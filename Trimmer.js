@@ -36,10 +36,12 @@ export default class Trimmer extends React.Component {
 
     this.initiateAnimator();
     this.state = {
-      trimming: false, // this value means the handles are being moved
-      trackScale: 2,         // the scale factor for the track
+      scrubbing: false,               // this value means scrubbing is currently happening
+      trimming: false,                // this value means the handles are being moved
+      trackScale: 2,                  // the scale factor for the track
       trimmingLeftHandleValue: 0,
       trimmingRightHandleValue: 0,
+      internalScrubbingPosition: 0,
     }
   }
   
@@ -228,6 +230,7 @@ export default class Trimmer extends React.Component {
       trackBorderColor = TRACK_BORDER_COLOR,
       markerColor = MARKER_COLOR,
       tintColor = TINT_COLOR,
+      scrubberPosition, 
     } = this.props;
 
     if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
@@ -244,7 +247,7 @@ export default class Trimmer extends React.Component {
       return null
     }
 
-    const { trimming, trackScale, trimmingLeftHandleValue, trimmingRightHandleValue } = this.state;
+    const { trimming, scrubbing, internalScrubbingPosition, trackScale, trimmingLeftHandleValue, trimmingRightHandleValue } = this.state;
 
     const trackWidth = screenWidth * trackScale
     if(isNaN(trackWidth)) {
@@ -257,19 +260,24 @@ export default class Trimmer extends React.Component {
         
     const leftPosition = trimming ? trimmingLeftHandleValue : trimmerLeftHandlePosition
     const rightPosition = trimming ? trimmingRightHandleValue : trimmerRightHandlePosition
+    const scrubPosition = scrubbing ? internalScrubbingPosition : scrubberPosition
 
     const boundedLeftPosition = Math.max(leftPosition, 0)
+    const boundedScrubPosition = this.clamp({ value: scrubPosition, min: boundedLeftPosition, max: rightPosition })
     const boundedTrimTime = Math.max(rightPosition - boundedLeftPosition, 0)
 
     const actualTrimmerWidth = (boundedTrimTime / totalDuration) * trackWidth;
     const actualTrimmerOffset = ((boundedLeftPosition / totalDuration) * trackWidth) + TRACK_PADDING_OFFSET + HANDLE_WIDTHS;
+    const actualScrubPosition = ((boundedScrubPosition / totalDuration) * trackWidth) + TRACK_PADDING_OFFSET + HANDLE_WIDTHS;
  
     if(isNaN(actualTrimmerWidth)) {
       console.log('ERROR render() actualTrimmerWidth !== number. boundedTrimTime', boundedTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
     }
 
     const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
-    console.log('absolutes ', { width: actualTrimmerWidth, left: actualTrimmerOffset })
+
+    console.log("scrubPosition", scrubPosition, "boundedScrubPosition", boundedScrubPosition)
+
     return (
       <View style={styles.root}>
         <ScrollView 
@@ -277,10 +285,24 @@ export default class Trimmer extends React.Component {
           style={[
             styles.horizontalScrollView,
             { transform: [{ scaleX: 1.0 }] },
+            { borderColor: 'pink', borderWidth: 1, },
           ]} 
           horizontal
           {...this.trackPanResponder.panHandlers}
         >
+          {
+            typeof scrubberPosition === 'number'
+              ? (
+                <View style={[
+                  styles.scrubberContainer,
+                  { left: actualScrubPosition },
+                ]} >
+                  <View style={styles.scrubberHead} />
+                  <View style={styles.scrubberTail} />
+                </View>
+              )
+              : null
+          }
           <View style={trackBackgroundStyles}>
             <View style={styles.markersContainer}>
               {
@@ -329,12 +351,12 @@ const styles = StyleSheet.create({
     height: 140,
   },
   horizontalScrollView: {
-    paddingVertical: 20,
     height: 140,
     overflow: 'hidden',
     position: 'relative',
   },
   trackBackground: {
+    marginVertical: 20,
     backgroundColor: TRACK_BACKGROUND_COLOR,
     borderRadius: 5,
     borderWidth: 1,
@@ -345,7 +367,7 @@ const styles = StyleSheet.create({
   trimmer: {
     position: 'absolute',
     left: TRACK_PADDING_OFFSET,
-    top: -3,
+    top: 17,
     borderColor: TINT_COLOR,
     borderWidth: 3,
     height: 106,
@@ -355,7 +377,7 @@ const styles = StyleSheet.create({
     width: HANDLE_WIDTHS,
     height: 106,
     backgroundColor: TINT_COLOR,
-    top: -3,
+    top: 17,
   },
   leftHandle: {
     borderTopLeftRadius: 5,
@@ -390,5 +412,27 @@ const styles = StyleSheet.create({
   },
   hiddenMarker: {
     opacity: 0
-  }
+  },
+  scrubberContainer: {
+    zIndex: 1,
+    position: 'absolute',
+    width: 3,
+    height: "100%",
+    // justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scrubberHead: {
+    position: 'absolute',
+    backgroundColor: 'red',
+    width: 14,
+    height: 14,
+    borderRadius: 14,
+  },
+  scrubberTail: {
+    backgroundColor: 'red',
+    height: '100%',
+    width: 3,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
+  },
 });

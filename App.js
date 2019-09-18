@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Button } from 'react-native';
 import Trimmer from './Trimmer';
 import moment from 'moment';
 
@@ -11,15 +11,32 @@ const totalDuration = 180000
 const initialLeftHandlePosition = 0;
 const initialRightHandlePosition = 36000;
 
+const scrubInterval = 50;
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      playing: false,
       trimmerLeftHandlePosition: initialLeftHandlePosition, // left handle position
       trimmerRightHandlePosition: initialRightHandlePosition, // right handle position
+      scrubberPosition: initialLeftHandlePosition
     }
+  }
+
+  playScrubber = () => {
+    this.setState({ playling: true });
+
+    this.scrubberInterval = setInterval(() => {
+      this.setState({ scrubberPosition: this.state.scrubberPosition + scrubInterval })
+    }, scrubInterval)
+  }
+
+  pauseScrubber = () => {
+    clearInterval(this.scrubberInterval)
+
+    this.setState({ playling: false, scrubberPosition: this.state.trimmerLeftHandlePosition });
   }
 
   onLeftHandleChange = (newLeftHandleValue) => {
@@ -40,10 +57,17 @@ export default class App extends React.Component {
     const {
       trimmerLeftHandlePosition,
       trimmerRightHandlePosition,
+      scrubberPosition,
+      playling,
     } = this.state;
     
     return (
       <View style={styles.container}>
+        {
+          playling
+            ? <Button title="Pause" color="40E1A9" onPress={this.pauseScrubber}/>
+            : <Button title="Play" color="40E1A9" onPress={this.playScrubber}/>
+        }
         <View style={styles.timeContainer}>
           <View style={styles.timeWrapper}>
             <Text style={styles.timeLabel}>Total Time</Text>
@@ -78,6 +102,7 @@ export default class App extends React.Component {
           markerColor="#EDF1F7"
           trackBackgroundColor="#F7F9FC"
           trackBorderColor="#EDF1F7"
+          scrubberPosition={scrubberPosition}
         />
         {/* <Trimmer
           onLeftHandleChange={this.onLeftHandleChange}
