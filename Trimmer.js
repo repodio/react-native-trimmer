@@ -64,17 +64,12 @@ export default class Trimmer extends React.Component {
     onMoveShouldSetPanResponder: (evt, gestureState) => true,
     onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
     onPanResponderGrant: (evt, gestureState) => {
-      console.log('createScrubHandlePanResponder SCUBBING TRUE')
-
       this.setState({
         scrubbing: true,
         internalScrubbingPosition: this.props.scrubberPosition,
       })
     },
     onPanResponderMove: (evt, gestureState) => {
-
-      console.log('createScrubHandlePanResponder MOVE')
-
       const { trackScale } = this.state;
       const {
         scrubberPosition,
@@ -100,8 +95,6 @@ export default class Trimmer extends React.Component {
       this.setState({ internalScrubbingPosition: newBoundedScrubberPosition })
     },
     onPanResponderRelease: (evt, gestureState) => {
-      console.log('createScrubHandlePanResponder SCUBBING FALSE')
-
       this.handleScrubbingValueChange(this.state.internalScrubbingPosition)
       this.setState({ scrubbing: false })
     },
@@ -223,9 +216,6 @@ export default class Trimmer extends React.Component {
 
           this.lastScalePinchDist = pinchDistance;
         } 
-        
-        console.log('createTrackPanResponder GRANT, scrubbing: ', this.state.scrubbing)
-
       },
       onPanResponderMove: (evt, gestureState) => {
 
@@ -339,8 +329,6 @@ export default class Trimmer extends React.Component {
     }
 
     const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
-
-    console.log(scrubbing, "scrubPosition", scrubPosition, "leftPosition", boundedLeftPosition, 'rightPosition', rightPosition)
 
     return (
       <View style={styles.root}>

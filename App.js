@@ -40,23 +40,18 @@ export default class App extends React.Component {
   }
 
   onLeftHandleChange = (newLeftHandleValue) => {
-    // this.setState({ trimDuration: duration, trimOffset: offset });
-    console.log('onLeftHandleChange', newLeftHandleValue)
     this.setState({ trimmerLeftHandlePosition: newLeftHandleValue })
   }
 
   onRightHandleChange = (newRightHandleValue) => {
-    // this.setState({ trimDuration: duration, trimOffset: offset });
-    console.log('onRightHandleChange', newRightHandleValue)
     this.setState({ trimmerRightHandlePosition: newRightHandleValue })
   }
 
-  formatDuration = milliseconds => moment.utc(milliseconds).format('HH:mm:ss')
-
   onScrubbingComplete = (newValue) => {
-    console.log('onScrubbingComplete', newValue)
     this.setState({ playing: false, scrubberPosition: newValue })
   }
+
+  formatDuration = milliseconds => moment.utc(milliseconds).format('HH:mm:ss')
 
   render() {
     const {
