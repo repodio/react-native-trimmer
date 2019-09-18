@@ -8,8 +8,8 @@ const maxTrimDuration = 60000;
 const minimumTrimDuration = 1000;
 const totalDuration = 180000
 
-const initialLeftHandlePosition = 36000;
-const initialRightHandlePosition = 75000;
+const initialLeftHandlePosition = 0;
+const initialRightHandlePosition = 36000;
 
 
 export default class App extends React.Component {
@@ -79,7 +79,7 @@ export default class App extends React.Component {
           trackBackgroundColor="#F7F9FC"
           trackBorderColor="#EDF1F7"
         />
-        <Trimmer
+        {/* <Trimmer
           onLeftHandleChange={this.onLeftHandleChange}
           onRightHandleChange={this.onRightHandleChange}
           totalDuration={totalDuration}
@@ -106,7 +106,7 @@ export default class App extends React.Component {
           markerColor="#3c9d9b"
           trackBackgroundColor="#394a6d"
           trackBorderColor="#3c9d9b"
-        />
+        /> */}
       </View>
     );
   }
