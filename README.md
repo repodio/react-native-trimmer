@@ -13,6 +13,8 @@ yarn add react-native-trimmer`
 import Trimmer from 'react-native-trimmer'
 ``` 
 
+<img src="https://i.imgur.com/SyUqGSB.png" >
+
 ### Required Props
 
 Name | Type | Description
@@ -46,6 +48,8 @@ Name | Type | Default Value | Description
 
 
 ## Basic Example
+
+<img src="https://i.imgur.com/vBM5VMX.jpg" >
 
 ```javascript
 import React, { Component } from 'react'
@@ -83,6 +87,8 @@ class Example extends Component {
 ```
 
 ## Advanced Example
+
+<img src="https://i.imgur.com/lybYRYo.jpg" >
 
 ```javascript
 import React, { Component } from 'react'
