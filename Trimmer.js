@@ -269,7 +269,7 @@ export default class Trimmer extends React.Component {
     }
 
     const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
-
+    console.log('absolutes ', { width: actualTrimmerWidth, left: actualTrimmerOffset })
     return (
       <View style={styles.root}>
         <ScrollView 
@@ -297,19 +297,27 @@ export default class Trimmer extends React.Component {
               }
             </View>
           </View>
-          <Animated.View style={[
+          <View {...this.leftHandlePanResponder.panHandlers} style={[
+            styles.handle, 
+            styles.leftHandle,
+            { backgroundColor: tintColor, left: actualTrimmerOffset - HANDLE_WIDTHS }
+          ]}>
+            <Arrow.Left />
+          </View>
+          <View style={[
             styles.trimmer,
             { width: actualTrimmerWidth, left: actualTrimmerOffset },
             { borderColor: tintColor }
           ]}>
             <View style={[styles.selection, { backgroundColor: tintColor }]}/>
-            <View style={[styles.handle, styles.leftHandle, { backgroundColor: tintColor }]} {...this.leftHandlePanResponder.panHandlers}>
-              <Arrow.Left />
-            </View>
-            <View style={[styles.handle, styles.rightHandle, { backgroundColor: tintColor }]} {...this.rightHandlePanResponder.panHandlers}>
-              <Arrow.Right />
-            </View>
-          </Animated.View>
+          </View>
+          <View {...this.rightHandlePanResponder.panHandlers} style={[
+            styles.handle,
+            styles.rightHandle,
+            { backgroundColor: tintColor, left: actualTrimmerOffset + actualTrimmerWidth }
+          ]} >
+            <Arrow.Right />
+          </View>
         </ScrollView>
       </View>
     );
@@ -340,7 +348,6 @@ const styles = StyleSheet.create({
     top: -3,
     borderColor: TINT_COLOR,
     borderWidth: 3,
-    borderRadius: 5,
     height: 106,
   },
   handle: {
@@ -351,12 +358,10 @@ const styles = StyleSheet.create({
     top: -3,
   },
   leftHandle: {
-    left: -30,
     borderTopLeftRadius: 5,
     borderBottomLeftRadius: 5,
   },
   rightHandle: {
-    right: -30,
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5,
   },
