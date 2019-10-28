@@ -20,6 +20,7 @@ const MAXIMUM_TRIM_DURATION = 60000;
 const MAXIMUM_SCALE_VALUE = 50;
 const ZOOM_MULTIPLIER = 5;
 const INITIAL_ZOOM = 2;
+const SCALE_ON_INIT_TYPE = 'trim-duration'
 
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
@@ -39,8 +40,16 @@ export default class Trimmer extends React.Component {
 
     let trackScale = props.initialZoomValue || INITIAL_ZOOM
     if(props.scaleInOnInit) {
-      const percentTrimmed = (props.trimmerRightHandlePosition - props.trimmerLeftHandlePosition) / props.totalDuration
-      const smartScaleValue = (2 / percentTrimmed) / 5
+        const { 
+            maxTrimDuration = MAXIMUM_TRIM_DURATION,
+            scaleInOnInitType = SCALE_ON_INIT_TYPE,
+            trimmerRightHandlePosition,
+            trimmerLeftHandlePosition
+        } = this.props;
+      const trimDuration = scaleInOnInitType === 'max-duration' ? maxTrimDuration : (trimmerRightHandlePosition - trimmerLeftHandlePosition);
+      const smartScaleDivider = scaleInOnInitType === 'max-duration' ? 3 : 5; // Based on testing, 3 works better when the goal is to have the entire trimmer fit in the visible area
+      const percentTrimmed = trimDuration / props.totalDuration;
+      const smartScaleValue = (2 / percentTrimmed) / smartScaleDivider;
       trackScale = this.clamp({ value: smartScaleValue, min: 1, max: props.maximumZoomLevel || MAXIMUM_SCALE_VALUE})
     }
 
