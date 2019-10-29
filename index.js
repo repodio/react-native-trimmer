@@ -22,6 +22,7 @@ const ZOOM_MULTIPLIER = 5;
 const INITIAL_ZOOM = 2;
 const SCALE_ON_INIT_TYPE = 'trim-duration'
 const SHOW_SCROLL_INDICATOR = true
+const CENTER_ON_LAYOUT = true
 
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
@@ -322,6 +323,7 @@ export default class Trimmer extends React.Component {
       markerColor = MARKER_COLOR,
       tintColor = TINT_COLOR,
       scrubberColor = SCRUBBER_COLOR,
+      centerOnLayout = CENTER_ON_LAYOUT,
       showScrollIndicator = SHOW_SCROLL_INDICATOR,
     } = this.props;
 
@@ -369,6 +371,15 @@ export default class Trimmer extends React.Component {
     const actualTrimmerOffset = ((boundedLeftPosition / totalDuration) * trackWidth) + TRACK_PADDING_OFFSET + HANDLE_WIDTHS;
     const actualScrubPosition = ((boundedScrubPosition / totalDuration) * trackWidth) + TRACK_PADDING_OFFSET + HANDLE_WIDTHS;
  
+    const onLayoutHandler = centerOnLayout
+        ? {
+            onLayout: () => {
+            const centerOffset = actualTrimmerOffset + (actualTrimmerWidth / 2) - (screenWidth / 2);
+            this.scrollView.scrollTo({x: centerOffset, y: 0, animated: false});
+            }
+        }
+        : null
+
     if(isNaN(actualTrimmerWidth)) {
       console.log('ERROR render() actualTrimmerWidth !== number. boundedTrimTime', boundedTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
     }
@@ -378,14 +389,15 @@ export default class Trimmer extends React.Component {
     return (
       <View style={styles.root}>
         <ScrollView 
+          ref={scrollView => this.scrollView = scrollView}
           scrollEnabled={!trimming && !scrubbing}
           style={[
             styles.horizontalScrollView,
             { transform: [{ scaleX: 1.0 }] },
           ]} 
           horizontal
-          {...this.trackPanResponder.panHandlers}
           showsHorizontalScrollIndicator={showScrollIndicator}
+          {...{...this.trackPanResponder.panHandlers, ...onLayoutHandler}}
         >
           {
             typeof scrubberPosition === 'number'
