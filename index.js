@@ -21,6 +21,7 @@ const MAXIMUM_SCALE_VALUE = 50;
 const ZOOM_MULTIPLIER = 5;
 const INITIAL_ZOOM = 2;
 const SCALE_ON_INIT_TYPE = 'trim-duration'
+const SHOW_SCROLL_INDICATOR = true
 
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
@@ -321,6 +322,7 @@ export default class Trimmer extends React.Component {
       markerColor = MARKER_COLOR,
       tintColor = TINT_COLOR,
       scrubberColor = SCRUBBER_COLOR,
+      showScrollIndicator = SHOW_SCROLL_INDICATOR,
     } = this.props;
 
     if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
@@ -383,6 +385,7 @@ export default class Trimmer extends React.Component {
           ]} 
           horizontal
           {...this.trackPanResponder.panHandlers}
+          showsHorizontalScrollIndicator={showScrollIndicator}
         >
           {
             typeof scrubberPosition === 'number'
