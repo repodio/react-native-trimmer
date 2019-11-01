@@ -189,19 +189,5 @@ class Example extends Component {
       </View>
     );
   }
-
-  render() {
-    return (
-      <View>
-        <Trimmer
-          onLeftHandleChange={this.onLeftHandleChange}
-          onRightHandleChange={this.onRightHandleChange}
-          totalDuration={60000}
-          trimmerLeftHandlePosition={trimmerLeftHandlePosition}
-          trimmerRightHandlePosition={trimmerRightHandlePosition}
-        />
-      </View>
-    );
-  }
 }
 ```
