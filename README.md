@@ -33,7 +33,9 @@ Name | Type | Default Value | Description
 `maximumZoomLevel` | Number | 50 | The maxium value zoom level the Trimmer can zoom into. The minimum value is always 1. A value of 50 would be you can scale the trimmer to 50x the minimum.
 `zoomMultiplier` | Number | 5 | This is a multiplier on how fast the zoom will zoom. A value of 1 will zoom a lot slower than a value of 20
 `initialZoomValue` | Number | 2 | Initial zoom for the Trimmer when it is constructed
-`scaleInOnInit` | Boolean | false | This boolean will disregard the above `initialZoomValue` and attempt to zoom in the proper level so the trimmer renders half width of the screen while also staying within the bounds of the maximumZoomLevel. This is a useful prop if the ratio of `trimmerRightHandlePosition - trimmerLeftHandlePosition` to `totalDuration` varying by magnitudes
+`scaleInOnInit` | Boolean | false | This boolean will disregard the above `initialZoomValue` and attempt to zoom in the proper level so the trimmer renders half width of the screen while also staying within the bounds of the maximumZoomLevel. This is a useful prop if the ratio of 
+`scaleInOnInitType` | String | `trim-duration` | Provides an option for `scaleInOnInit` to either use the duration of the trimmer `trim-duration` or the `maxTrimDuration` with `max-duration`. Using `max-duration` ensures that the trimmer will always fit in the visible area.
+`trimmerRightHandlePosition - trimmerLeftHandlePosition` to `totalDuration` varying by magnitudes
 `scrubberPosition` | Number | null | Position of the scrubber to be controlled by the parent component. A value of null will not render the scrubber
 `onScrubbingComplete` | Function | null | A callback for when the scrubbing is completed on the Trimmer
 `onLeftHandlePressIn` | Function | null | A callback for when the left handle is initially pressed in. Useful if you want to provide some haptics to the user on this press in.
@@ -45,6 +47,8 @@ Name | Type | Default Value | Description
 `trackBorderColor` | String | '#c8dad3' | Color of the track border
 `scrubberColor` | String | '#63707e' | Color of the scrubber
           scrubberPosition={scrubberPosition}
+`showScrollIndicator` | Boolean | true | Option to show or hide the scroll indicator.
+`centerOnLayout` | Boolean | true | Enabling this option ensure that the trimmer is visible / centered after the component's onLayout. 
 
 
 ## Basic Example
