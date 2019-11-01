@@ -400,6 +400,22 @@ export default class Trimmer extends React.Component {
           showsHorizontalScrollIndicator={showScrollIndicator}
           {...{...this.trackPanResponder.panHandlers, ...onLayoutHandler}}
         >
+          <View style={trackBackgroundStyles}>
+            <View style={styles.markersContainer}>
+              {
+                markers.map((m,i) => (
+                  <View 
+                    key={`marker-${i}`} 
+                    style={[
+                      styles.marker,
+                      i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
+                      i === 0 || i === markers.length - 1 ? styles.hiddenMarker : {},
+                      { backgroundColor: markerColor }
+                    ]}/>
+                ))
+              }
+            </View>
+          </View>
           {
             typeof scrubberPosition === 'number'
               ? (
@@ -417,22 +433,6 @@ export default class Trimmer extends React.Component {
               )
               : null
           }
-          <View style={trackBackgroundStyles}>
-            <View style={styles.markersContainer}>
-              {
-                markers.map((m,i) => (
-                  <View 
-                    key={`marker-${i}`} 
-                    style={[
-                      styles.marker,
-                      i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
-                      i === 0 || i === markers.length - 1 ? styles.hiddenMarker : {},
-                      { backgroundColor: markerColor }
-                    ]}/>
-                ))
-              }
-            </View>
-          </View>
           <View {...this.leftHandlePanResponder.panHandlers} style={[
             styles.handle, 
             styles.leftHandle,
