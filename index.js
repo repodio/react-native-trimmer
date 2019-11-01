@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   scrubberContainer: {
     zIndex: 1,
     position: 'absolute',
-    width: 3,
+    width: 14,
     height: "100%",
     // justifyContent: 'center',
     alignItems: 'center',
