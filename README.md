@@ -71,6 +71,10 @@ class Example extends Component {
   }
 
   render() {
+    const {
+      trimmerLeftHandlePosition,
+      trimmerRightHandlePosition,
+    } = this.state;
     return (
       <View>
         <Trimmer
