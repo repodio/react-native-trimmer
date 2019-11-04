@@ -20,6 +20,9 @@ const MAXIMUM_TRIM_DURATION = 60000;
 const MAXIMUM_SCALE_VALUE = 50;
 const ZOOM_MULTIPLIER = 5;
 const INITIAL_ZOOM = 2;
+const SCALE_ON_INIT_TYPE = 'trim-duration'
+const SHOW_SCROLL_INDICATOR = true
+const CENTER_ON_LAYOUT = true
 
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
@@ -39,8 +42,17 @@ export default class Trimmer extends React.Component {
 
     let trackScale = props.initialZoomValue || INITIAL_ZOOM
     if(props.scaleInOnInit) {
-      const percentTrimmed = (props.trimmerRightHandlePosition - props.trimmerLeftHandlePosition) / props.totalDuration
-      const smartScaleValue = (2 / percentTrimmed) / 5
+      const { 
+        maxTrimDuration = MAXIMUM_TRIM_DURATION,
+        scaleInOnInitType = SCALE_ON_INIT_TYPE,
+        trimmerRightHandlePosition,
+        trimmerLeftHandlePosition
+      } = this.props;
+      const isMaxDuration = scaleInOnInitType === 'max-duration';
+      const trimDuration = isMaxDuration ? maxTrimDuration : (trimmerRightHandlePosition - trimmerLeftHandlePosition);
+      const smartScaleDivider = isMaxDuration ? 3 : 5; // Based on testing, 3 works better when the goal is to have the entire trimmer fit in the visible area
+      const percentTrimmed = trimDuration / props.totalDuration;
+      const smartScaleValue = (2 / percentTrimmed) / smartScaleDivider;
       trackScale = this.clamp({ value: smartScaleValue, min: 1, max: props.maximumZoomLevel || MAXIMUM_SCALE_VALUE})
     }
 
@@ -312,6 +324,8 @@ export default class Trimmer extends React.Component {
       markerColor = MARKER_COLOR,
       tintColor = TINT_COLOR,
       scrubberColor = SCRUBBER_COLOR,
+      centerOnLayout = CENTER_ON_LAYOUT,
+      showScrollIndicator = SHOW_SCROLL_INDICATOR,
     } = this.props;
 
     if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
@@ -358,6 +372,15 @@ export default class Trimmer extends React.Component {
     const actualTrimmerOffset = ((boundedLeftPosition / totalDuration) * trackWidth) + TRACK_PADDING_OFFSET + HANDLE_WIDTHS;
     const actualScrubPosition = ((boundedScrubPosition / totalDuration) * trackWidth) + TRACK_PADDING_OFFSET + HANDLE_WIDTHS;
  
+    const onLayoutHandler = centerOnLayout
+        ? {
+            onLayout: () => {
+            const centerOffset = actualTrimmerOffset + (actualTrimmerWidth / 2) - (screenWidth / 2);
+            this.scrollView.scrollTo({x: centerOffset, y: 0, animated: false});
+            }
+        }
+        : null
+
     if(isNaN(actualTrimmerWidth)) {
       console.log('ERROR render() actualTrimmerWidth !== number. boundedTrimTime', boundedTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
     }
@@ -367,14 +390,32 @@ export default class Trimmer extends React.Component {
     return (
       <View style={styles.root}>
         <ScrollView 
+          ref={scrollView => this.scrollView = scrollView}
           scrollEnabled={!trimming && !scrubbing}
           style={[
             styles.horizontalScrollView,
             { transform: [{ scaleX: 1.0 }] },
           ]} 
           horizontal
-          {...this.trackPanResponder.panHandlers}
+          showsHorizontalScrollIndicator={showScrollIndicator}
+          {...{...this.trackPanResponder.panHandlers, ...onLayoutHandler}}
         >
+          <View style={trackBackgroundStyles}>
+            <View style={styles.markersContainer}>
+              {
+                markers.map((m,i) => (
+                  <View 
+                    key={`marker-${i}`} 
+                    style={[
+                      styles.marker,
+                      i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
+                      i === 0 || i === markers.length - 1 ? styles.hiddenMarker : {},
+                      { backgroundColor: markerColor }
+                    ]}/>
+                ))
+              }
+            </View>
+          </View>
           {
             typeof scrubberPosition === 'number'
               ? (
@@ -392,22 +433,6 @@ export default class Trimmer extends React.Component {
               )
               : null
           }
-          <View style={trackBackgroundStyles}>
-            <View style={styles.markersContainer}>
-              {
-                markers.map((m,i) => (
-                  <View 
-                    key={`marker-${i}`} 
-                    style={[
-                      styles.marker,
-                      i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
-                      i === 0 || i === markers.length - 1 ? styles.hiddenMarker : {},
-                      { backgroundColor: markerColor }
-                    ]}/>
-                ))
-              }
-            </View>
-          </View>
           <View {...this.leftHandlePanResponder.panHandlers} style={[
             styles.handle, 
             styles.leftHandle,
@@ -505,7 +530,7 @@ const styles = StyleSheet.create({
   scrubberContainer: {
     zIndex: 1,
     position: 'absolute',
-    width: 3,
+    width: 14,
     height: "100%",
     // justifyContent: 'center',
     alignItems: 'center',
