@@ -1,6 +1,6 @@
 {
   "name": "react-native-trimmer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Trimmer component that renders in iOS and Android and built entirely in React Native.",
   "main": "index.js",
   "scripts": {
