@@ -8,7 +8,6 @@ import {
   Platform,
   Text,
 } from 'react-native'
-import Trimmer from './temp/index'
 import Trimmer from 'react-native-trimmer'
 
 
@@ -49,7 +48,6 @@ export default class Example extends Component {
       trimmerRightHandlePosition: rightPosition,
       trimmerLeftHandlePosition: leftPosition
     })
-
   }
 
   onScrubbingComplete = (newValue) => {
