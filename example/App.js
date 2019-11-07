@@ -5,14 +5,15 @@ import {
   TextInput,
   ScrollView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Text,
 } from 'react-native'
 import Trimmer from './temp/index'
 // import Trimmer from 'react-native-trimmer'
 
 
 const maxTrimDuration = 60000;
-const minimumTrimDuration = 1000;
+const minimumTrimDuration = 5000;
 const totalDuration = 180000
 
 const initialLeftHandlePosition = 0;
@@ -113,6 +114,8 @@ export default class Example extends Component {
                 ? <Button title="Pause" color="#f638dc" onPress={this.pauseScrubber}/>
                 : <Button title="Play" color="#f638dc" onPress={this.playScrubber}/>
             }
+            <Text>left: {trimmerLeftHandlePosition}</Text>
+            <Text>right: {trimmerRightHandlePosition}</Text>
             <Trimmer
               {...this.trimmerProps()}
             />

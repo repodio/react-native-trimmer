@@ -153,7 +153,7 @@ export default class Trimmer extends React.Component {
 
       const newTrimmerRightHandlePosition = ((calculatedTrimmerRightHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
     
-      const lowerBound = trimmerLeftHandlePosition + minimumTrimDuration
+      const lowerBound = minimumTrimDuration
       const upperBound = totalDuration
 
       const newBoundedTrimmerRightHandlePosition = this.clamp({
@@ -166,6 +166,11 @@ export default class Trimmer extends React.Component {
         this.setState({
           trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition,
           trimmingLeftHandleValue: newBoundedTrimmerRightHandlePosition - maxTrimDuration,
+        })
+      } else if (newBoundedTrimmerRightHandlePosition - this.state.trimmingLeftHandleValue <= minimumTrimDuration) {
+        this.setState({
+          trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition,
+          trimmingLeftHandleValue: newBoundedTrimmerRightHandlePosition - minimumTrimDuration,
         })
       } else {
         this.setState({ trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition })
@@ -208,18 +213,23 @@ export default class Trimmer extends React.Component {
       const newTrimmerLeftHandlePosition = ((calculatedTrimmerLeftHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
       
       const lowerBound = 0
-      const upperBound = trimmerRightHandlePosition - minimumTrimDuration
+      const upperBound = totalDuration - minimumTrimDuration
 
       const newBoundedTrimmerLeftHandlePosition = this.clamp({
         value: newTrimmerLeftHandlePosition,
         min: lowerBound,
         max: upperBound
       })
-      console.log('left/right', newBoundedTrimmerLeftHandlePosition, this.state.trimmingRightHandleValue)
+
       if (this.state.trimmingRightHandleValue - newBoundedTrimmerLeftHandlePosition >= maxTrimDuration) {
         this.setState({
           trimmingRightHandleValue: newBoundedTrimmerLeftHandlePosition + maxTrimDuration,
           trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition,
+        })
+      } else if (this.state.trimmingRightHandleValue - newBoundedTrimmerLeftHandlePosition <= minimumTrimDuration) {
+        this.setState({
+          trimmingRightHandleValue: newBoundedTrimmerLeftHandlePosition,
+          trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition - minimumTrimDuration,
         })
       } else {
         this.setState({ trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition })
