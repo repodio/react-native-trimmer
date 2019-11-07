@@ -142,7 +142,6 @@ export default class Trimmer extends React.Component {
       const { trackScale } = this.state;
       const { 
         trimmerRightHandlePosition,
-        trimmerLeftHandlePosition,
         totalDuration,
         minimumTrimDuration = MINIMUM_TRIM_DURATION,
         maxTrimDuration = MAXIMUM_TRIM_DURATION,
@@ -442,12 +441,13 @@ export default class Trimmer extends React.Component {
             typeof scrubberPosition === 'number'
               ? (
                 <View style={[
-                  styles.scrubberContainer,
-                  { left: actualScrubPosition },
-                ]} >
+                    styles.scrubberContainer,
+                    { left: actualScrubPosition },
+                  ]} 
+                  hitSlop={{top: 8, bottom: 8, right: 8, left: 8}}
+                  {...this.scrubHandlePanResponder.panHandlers}
+                >
                   <View
-                    hitSlop={{top: 20, bottom: 5, right: 20, left: 20}}
-                    {...this.scrubHandlePanResponder.panHandlers}
                     style={[styles.scrubberHead, { backgroundColor: scrubberColor }]}
                   />
                   <View style={[styles.scrubberTail, { backgroundColor: scrubberColor }]} />
