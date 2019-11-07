@@ -12,5 +12,3 @@ web-report/
 
 # macOS
 .DS_Store
-
-example/temp/*
