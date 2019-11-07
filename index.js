@@ -154,7 +154,7 @@ export default class Trimmer extends React.Component {
       const newTrimmerRightHandlePosition = ((calculatedTrimmerRightHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
     
       const lowerBound = trimmerLeftHandlePosition + minimumTrimDuration
-      const upperBound = Math.min(totalDuration, trimmerLeftHandlePosition + maxTrimDuration)
+      const upperBound = totalDuration
 
       const newBoundedTrimmerRightHandlePosition = this.clamp({
         value: newTrimmerRightHandlePosition,
@@ -162,10 +162,17 @@ export default class Trimmer extends React.Component {
         max: upperBound
       })
 
-      this.setState({ trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition })
+      if (newBoundedTrimmerRightHandlePosition - this.state.trimmingLeftHandleValue >= maxTrimDuration) {
+        this.setState({
+          trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition,
+          trimmingLeftHandleValue: newBoundedTrimmerRightHandlePosition - maxTrimDuration,
+        })
+      } else {
+        this.setState({ trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition })
+      }
     },
     onPanResponderRelease: (evt, gestureState) => {
-      this.handleRightHandleSizeChange(this.state.trimmingRightHandleValue)
+      this.handleHandleSizeChange()
       this.setState({ trimming: false })
     },
     onPanResponderTerminationRequest: (evt, gestureState) => true,
@@ -200,7 +207,7 @@ export default class Trimmer extends React.Component {
       
       const newTrimmerLeftHandlePosition = ((calculatedTrimmerLeftHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
       
-      const lowerBound = Math.max(0, trimmerRightHandlePosition - maxTrimDuration)
+      const lowerBound = 0
       const upperBound = trimmerRightHandlePosition - minimumTrimDuration
 
       const newBoundedTrimmerLeftHandlePosition = this.clamp({
@@ -208,11 +215,20 @@ export default class Trimmer extends React.Component {
         min: lowerBound,
         max: upperBound
       })
-      
+
+      if (newBoundedTrimmerLeftHandlePosition + this.state.trimmingRightHandleValue >= maxTrimDuration) {
+        this.setState({
+          trimmingRightHandleValue: newBoundedTrimmerLeftHandlePosition + maxTrimDuration,
+          trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition,
+        })
+      } else {
+        this.setState({ trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition })
+      }
+
       this.setState({ trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition })
     },
     onPanResponderRelease: (evt, gestureState) => {
-      this.handleLeftHandleSizeChange(this.state.trimmingLeftHandleValue)
+      this.handleHandleSizeChange()
       this.setState({ trimming: false })
     },
     onPanResponderTerminationRequest: (evt, gestureState) => true,
@@ -285,15 +301,13 @@ export default class Trimmer extends React.Component {
     onScrubbingComplete && onScrubbingComplete(newScrubPosition | 0)
   }
 
-  handleLeftHandleSizeChange = (newPosition) => {
-    const { onLeftHandleChange } = this.props;
-    onLeftHandleChange && onLeftHandleChange(newPosition | 0)
-    this.handleScrubbingValueChange(newPosition)
-  }
-
-  handleRightHandleSizeChange = (newPosition) => {
-    const { onRightHandleChange } = this.props;
-    onRightHandleChange && onRightHandleChange(newPosition | 0)
+  handleHandleSizeChange = () => {
+    const { onHandleChange } = this.props;
+    const { trimmingLeftHandleValue, trimmingRightHandleValue } = this.state;
+    onHandleChange && onHandleChange({
+      leftPosition: trimmingLeftHandleValue | 0,
+      rightPosition: trimmingRightHandleValue | 0,
+    });
   }
 
   handleLeftHandlePressIn = () => {
@@ -328,12 +342,12 @@ export default class Trimmer extends React.Component {
       showScrollIndicator = SHOW_SCROLL_INDICATOR,
     } = this.props;
 
-    if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
-      console.error('maxTrimDuration is less than trimRightHandlePosition minus trimmerLeftHandlePosition', {
-        minimumTrimDuration, trimmerRightHandlePosition, trimmerLeftHandlePosition
-      })
-      return null
-    }
+    // if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
+    //   console.error('maxTrimDuration is less than trimRightHandlePosition minus trimmerLeftHandlePosition', {
+    //     minimumTrimDuration, trimmerRightHandlePosition, trimmerLeftHandlePosition
+    //   })
+    //   return null
+    // }
 
     if(minimumTrimDuration > trimmerRightHandlePosition - trimmerLeftHandlePosition) {
       console.error('minimumTrimDuration is less than trimRightHandlePosition minus trimmerLeftHandlePosition', {
@@ -495,12 +509,12 @@ const styles = StyleSheet.create({
     top: 17,
   },
   leftHandle: {
-    borderTopLeftRadius: 5,
-    borderBottomLeftRadius: 5,
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
   },
   rightHandle: {
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
   },
   selection: {
     opacity: 0.2,

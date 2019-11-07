@@ -7,7 +7,8 @@ import {
   KeyboardAvoidingView,
   Platform
 } from 'react-native'
-import Trimmer from 'react-native-trimmer'
+import Trimmer from './temp/index'
+// import Trimmer from 'react-native-trimmer'
 
 
 const maxTrimDuration = 60000;
@@ -42,12 +43,12 @@ export default class Example extends Component {
     this.setState({ playling: false, scrubberPosition: this.state.trimmerLeftHandlePosition });
   }
 
-  onLeftHandleChange = (newLeftHandleValue) => {
-    this.setState({ trimmerLeftHandlePosition: newLeftHandleValue })
-  }
+  onHandleChange = ({ leftPosition, rightPosition }) => {
+    this.setState({
+      trimmerRightHandlePosition: rightPosition,
+      trimmerLeftHandlePosition: leftPosition
+    })
 
-  onRightHandleChange = (newRightHandleValue) => {
-    this.setState({ trimmerRightHandlePosition: newRightHandleValue })
   }
 
   onScrubbingComplete = (newValue) => {
@@ -63,8 +64,7 @@ export default class Example extends Component {
     } = this.state;
 
     return {
-      onLeftHandleChange: this.onLeftHandleChange,
-      onRightHandleChange: this.onRightHandleChange,
+      onHandleChange: this.onHandleChange,
       totalDuration: totalDuration,
       trimmerLeftHandlePosition: trimmerLeftHandlePosition,
       trimmerRightHandlePosition: trimmerRightHandlePosition,
@@ -107,7 +107,7 @@ export default class Example extends Component {
           keyboardDismissMode={Platform === 'ios' ? "interactive" : 'on-drag'}
         >
           <View>
-            <View style={{ width: '100%', height: 200, backgroundColor: '#f638dc', padding: 20 }}/>
+            <View style={{ width: '100%', height: 250, backgroundColor: '#f638dc', padding: 20 }}/>
             {
               playling
                 ? <Button title="Pause" color="#f638dc" onPress={this.pauseScrubber}/>
@@ -116,10 +116,12 @@ export default class Example extends Component {
             <Trimmer
               {...this.trimmerProps()}
             />
-            <View style={{ width: '100%', height: 100, backgroundColor: '#f638dc', padding: 20 }}/>
-            <View style={{ width: '100%', borderWidth: 2, borderColor: '#f638dc', padding: 20 }}>
-              <TextInput />
-            </View>
+            <ScrollView style={{ width: '100%', height: '100%', backgroundColor: 'blue' }}>
+              <View style={{ width: '100%', height: 100, backgroundColor: '#f638dc', padding: 20 }}/>
+              <View style={{ width: '100%', borderWidth: 2, borderColor: '#f638dc', padding: 20 }}>
+                <TextInput />
+              </View>
+            </ScrollView>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
