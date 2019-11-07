@@ -215,17 +215,15 @@ export default class Trimmer extends React.Component {
         min: lowerBound,
         max: upperBound
       })
-
-      if (newBoundedTrimmerLeftHandlePosition + this.state.trimmingRightHandleValue >= maxTrimDuration) {
+      console.log('left/right', newBoundedTrimmerLeftHandlePosition, this.state.trimmingRightHandleValue)
+      if (this.state.trimmingRightHandleValue - newBoundedTrimmerLeftHandlePosition >= maxTrimDuration) {
         this.setState({
           trimmingRightHandleValue: newBoundedTrimmerLeftHandlePosition + maxTrimDuration,
           trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition,
         })
       } else {
-        this.setState({ trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition })
+        this.setState({ trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition })
       }
-
-      this.setState({ trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition })
     },
     onPanResponderRelease: (evt, gestureState) => {
       this.handleHandleSizeChange()
