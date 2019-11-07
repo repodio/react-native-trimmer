@@ -22,8 +22,7 @@ Name | Type | Description
 `trimmerLeftHandlePosition` | Number | This is the value **in milliseconds** of the left handle. This value will always control the left handle unless the left handle is currently being selected and positioned
 `trimmerRightHandlePosition` | Number | This is the value  **in milliseconds** of the left handle. This value will always control the left handle unless the left handle is currently being selected and positioned
 `totalDuration` | Number | The total duration **in milliseconds**
-`onLeftHandleChange` | Function | Callback for when the Trimmer component updates the `trimmerLeftHandlePosition`. Function has 1 arguemnt, the new value in milliseconds
-`onRightHandleChange` | Function | Callback for when the Trimmer component updates the `trimmerRightHandlePosition`. Function has 1 arguemnt, the new value in milliseconds
+`onHandleChange` | Function | Callback for when the handles of the Trimmer component have been released. Callback passes 1 object with the following keys  `{ leftPosition: Number, rightPosition: Number}`. Both the new leftPosition and rightPosition are in milliseconds
 
 ### Optional Props
 
@@ -66,12 +65,11 @@ class Example extends Component {
     trimmerRightHandlePosition: 10000,
   }
   
-  onLeftHandleChange = (newLeftHandleValue) => {
-    this.setState({ trimmerLeftHandlePosition: newLeftHandleValue })
-  }
-
-  onRightHandleChange = (newRightHandleValue) => {
-    this.setState({ trimmerRightHandlePosition: newRightHandleValue })
+  onHandleChange = ({ leftPosition, rightPosition }) => {
+    this.setState({
+      trimmerRightHandlePosition: rightPosition,
+      trimmerLeftHandlePosition: leftPosition
+    })
   }
 
   render() {
@@ -82,8 +80,7 @@ class Example extends Component {
     return (
       <View>
         <Trimmer
-          onLeftHandleChange={this.onLeftHandleChange}
-          onRightHandleChange={this.onRightHandleChange}
+          onHandleChange={this.onHandleChange}
           totalDuration={60000}
           trimmerLeftHandlePosition={trimmerLeftHandlePosition}
           trimmerRightHandlePosition={trimmerRightHandlePosition}
@@ -136,12 +133,11 @@ class Example extends Component {
     this.setState({ playling: false, scrubberPosition: this.state.trimmerLeftHandlePosition });
   }
 
-  onLeftHandleChange = (newLeftHandleValue) => {
-    this.setState({ trimmerLeftHandlePosition: newLeftHandleValue })
-  }
-
-  onRightHandleChange = (newRightHandleValue) => {
-    this.setState({ trimmerRightHandlePosition: newRightHandleValue })
+  onHandleChange = ({ leftPosition, rightPosition }) => {
+    this.setState({
+      trimmerRightHandlePosition: rightPosition,
+      trimmerLeftHandlePosition: leftPosition
+    })
   }
 
   onScrubbingComplete = (newValue) => {
@@ -164,8 +160,7 @@ class Example extends Component {
             : <Button title="Play" color="#f638dc" onPress={this.playScrubber}/>
         }
         <Trimmer
-          onLeftHandleChange={this.onLeftHandleChange}
-          onRightHandleChange={this.onRightHandleChange}
+          onHandleChange={this.onHandleChange}
           totalDuration={totalDuration}
           trimmerLeftHandlePosition={trimmerLeftHandlePosition}
           trimmerRightHandlePosition={trimmerRightHandlePosition}
