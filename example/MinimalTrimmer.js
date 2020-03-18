@@ -28,6 +28,10 @@ const HANDLE_WIDTHS = 30;
 const MARKER_INCREMENT = 2000;
 const SPECIAL_MARKER_INCREMEMNT = 2;
 
+
+const TRIMMER_WIDTH = 200;
+
+
 const TRACK_BACKGROUND_COLOR = '#FFF';
 const TRACK_BORDER_COLOR = '#c8dad3';
 const MARKER_COLOR = '#EDEFF3';
@@ -56,8 +60,6 @@ export default class Trimmer extends React.Component {
 
     this.initiateAnimator();
     this.state = {
-      scrubbing: false,                                       // this value means scrubbing is currently happening
-      trimming: false,                                        // this value means the handles are being moved
       trackScale,                                             // the scale factor for the track
       trimmingLeftHandleValue: 0,
       trimmingRightHandleValue: 0,
@@ -72,173 +74,7 @@ export default class Trimmer extends React.Component {
     this.scaleTrackValue = new Animated.Value(0);
     this.lastDy = 0;
     this.trackPanResponder = this.createTrackPanResponder()
-    this.leftHandlePanResponder = this.createLeftHandlePanResponder()
-    this.rightHandlePanResponder = this.createRightHandlePanResponder()
-    this.scrubHandlePanResponder = this.createScrubHandlePanResponder()
   }
-
-
-  createScrubHandlePanResponder = () => PanResponder.create({
-    onStartShouldSetPanResponder: (evt, gestureState) => true,
-    onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-    onMoveShouldSetPanResponder: (evt, gestureState) => true,
-    onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
-    onPanResponderGrant: (evt, gestureState) => {
-      this.setState({
-        scrubbing: true,
-        internalScrubbingPosition: this.props.scrubberPosition,
-      })
-      this.handleScrubberPressIn()
-    },
-    onPanResponderMove: (evt, gestureState) => {
-      const { trackScale } = this.state;
-      const {
-        scrubberPosition,
-        trimmerLeftHandlePosition,
-        trimmerRightHandlePosition,
-        totalDuration,
-      } = this.props;
-      
-      const trackWidth = (screenWidth) * trackScale
-      const calculatedScrubberPosition = (scrubberPosition / totalDuration) * trackWidth;
-      
-      const newScrubberPosition = ((calculatedScrubberPosition + gestureState.dx) / trackWidth ) * totalDuration
-      
-      const lowerBound = Math.max(0, trimmerLeftHandlePosition)
-      const upperBound = trimmerRightHandlePosition
-
-      const newBoundedScrubberPosition = this.clamp({
-        value: newScrubberPosition,
-        min: lowerBound,
-        max: upperBound
-      })
-      
-      this.setState({ internalScrubbingPosition: newBoundedScrubberPosition })
-    },
-    onPanResponderRelease: (evt, gestureState) => {
-      this.handleScrubbingValueChange(this.state.internalScrubbingPosition)
-      this.setState({ scrubbing: false })
-    },
-    onPanResponderTerminationRequest: (evt, gestureState) => true,
-    onShouldBlockNativeResponder: (evt, gestureState) => true
-  })
-
-  createRightHandlePanResponder = () => PanResponder.create({
-    onStartShouldSetPanResponder: (evt, gestureState) => true,
-    onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-    onMoveShouldSetPanResponder: (evt, gestureState) => true,
-    onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
-    onPanResponderGrant: (evt, gestureState) => {
-      this.setState({
-        trimming: true,
-        trimmingRightHandleValue: this.props.trimmerRightHandlePosition,
-        trimmingLeftHandleValue: this.props.trimmerLeftHandlePosition,
-      })
-      this.handleRightHandlePressIn()
-    },
-    onPanResponderMove: (evt, gestureState) => {
-      const { trackScale } = this.state;
-      const { 
-        trimmerRightHandlePosition,
-        totalDuration,
-        minimumTrimDuration = MINIMUM_TRIM_DURATION,
-        maxTrimDuration = MAXIMUM_TRIM_DURATION,
-      } = this.props;
-      
-      const trackWidth = screenWidth * trackScale
-      const calculatedTrimmerRightHandlePosition = (trimmerRightHandlePosition / totalDuration) * trackWidth;
-
-      const newTrimmerRightHandlePosition = ((calculatedTrimmerRightHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
-    
-      const lowerBound = minimumTrimDuration
-      const upperBound = totalDuration
-
-      const newBoundedTrimmerRightHandlePosition = this.clamp({
-        value: newTrimmerRightHandlePosition,
-        min: lowerBound,
-        max: upperBound
-      })
-
-      if (newBoundedTrimmerRightHandlePosition - this.state.trimmingLeftHandleValue >= maxTrimDuration) {
-        this.setState({
-          trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition,
-          trimmingLeftHandleValue: newBoundedTrimmerRightHandlePosition - maxTrimDuration,
-        })
-      } else if (newBoundedTrimmerRightHandlePosition - this.state.trimmingLeftHandleValue <= minimumTrimDuration) {
-        this.setState({
-          trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition,
-          trimmingLeftHandleValue: newBoundedTrimmerRightHandlePosition - minimumTrimDuration,
-        })
-      } else {
-        this.setState({ trimmingRightHandleValue: newBoundedTrimmerRightHandlePosition })
-      }
-    },
-    onPanResponderRelease: (evt, gestureState) => {
-      this.handleHandleSizeChange()
-      this.setState({ trimming: false })
-    },
-    onPanResponderTerminationRequest: (evt, gestureState) => true,
-    onShouldBlockNativeResponder: (evt, gestureState) => true
-  })
-
-  createLeftHandlePanResponder = () => PanResponder.create({
-    onStartShouldSetPanResponder: (evt, gestureState) => true,
-    onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-    onMoveShouldSetPanResponder: (evt, gestureState) => true,
-    onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
-    onPanResponderGrant: (evt, gestureState) => {
-      this.setState({
-        trimming: true,
-        trimmingRightHandleValue: this.props.trimmerRightHandlePosition,
-        trimmingLeftHandleValue: this.props.trimmerLeftHandlePosition,
-      })
-      this.handleLeftHandlePressIn()
-    },
-    onPanResponderMove: (evt, gestureState) => {
-      const { trackScale } = this.state;
-      const {
-        trimmerLeftHandlePosition,
-        trimmerRightHandlePosition,
-        totalDuration,
-        minimumTrimDuration = MINIMUM_TRIM_DURATION,
-        maxTrimDuration = MAXIMUM_TRIM_DURATION,
-      } = this.props;
-      
-      const trackWidth = (screenWidth) * trackScale
-      const calculatedTrimmerLeftHandlePosition = (trimmerLeftHandlePosition / totalDuration) * trackWidth;
-      
-      const newTrimmerLeftHandlePosition = ((calculatedTrimmerLeftHandlePosition + gestureState.dx) / trackWidth ) * totalDuration
-      
-      const lowerBound = 0
-      const upperBound = totalDuration - minimumTrimDuration
-
-      const newBoundedTrimmerLeftHandlePosition = this.clamp({
-        value: newTrimmerLeftHandlePosition,
-        min: lowerBound,
-        max: upperBound
-      })
-
-      if (this.state.trimmingRightHandleValue - newBoundedTrimmerLeftHandlePosition >= maxTrimDuration) {
-        this.setState({
-          trimmingRightHandleValue: newBoundedTrimmerLeftHandlePosition + maxTrimDuration,
-          trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition,
-        })
-      } else if (this.state.trimmingRightHandleValue - newBoundedTrimmerLeftHandlePosition <= minimumTrimDuration) {
-        this.setState({
-          trimmingRightHandleValue: newBoundedTrimmerLeftHandlePosition,
-          trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition - minimumTrimDuration,
-        })
-      } else {
-        this.setState({ trimmingLeftHandleValue: newBoundedTrimmerLeftHandlePosition })
-      }
-    },
-    onPanResponderRelease: (evt, gestureState) => {
-      this.handleHandleSizeChange()
-      this.setState({ trimming: false })
-    },
-    onPanResponderTerminationRequest: (evt, gestureState) => true,
-    onShouldBlockNativeResponder: (evt, gestureState) => true
-  })
 
   calculatePinchDistance = (x1, y1, x2, y2) => {
     let dx = Math.abs(x1 - x2)
@@ -249,53 +85,32 @@ export default class Trimmer extends React.Component {
   
   createTrackPanResponder = () => PanResponder.create({
       // Ask to be the responder:
-      onStartShouldSetPanResponder: (evt, gestureState) => !this.state.scrubbing && !this.state.trimming,
-      onStartShouldSetPanResponderCapture: (evt, gestureState) => !this.state.scrubbing && !this.state.trimming,
-      onMoveShouldSetPanResponder: (evt, gestureState) => !this.state.scrubbing && !this.state.trimming,
-      onMoveShouldSetPanResponderCapture: (evt, gestureState) => !this.state.scrubbing && !this.state.trimming,
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
       onPanResponderGrant: (evt, gestureState) => {
-        this.lastScaleDy = 0;
-        const touches = evt.nativeEvent.touches || {};
+        // this.lastScaleDy = 0;
 
-        if (touches.length == 2) {
-          const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
+        this.lastScaleDX = 0;
 
-          this.lastScalePinchDist = pinchDistance;
-        } 
       },
       onPanResponderMove: (evt, gestureState) => {
-        const touches = evt.nativeEvent.touches;
-        const { maximumZoomLevel = MAXIMUM_SCALE_VALUE, zoomMultiplier = ZOOM_MULTIPLIER } = this.props;
+        const stepValue = (gestureState.dx - this.lastScaleDX);
+        this.lastScaleDX = gestureState.dx
 
-        if (touches.length == 2) {
-          const pinchDistance = this.calculatePinchDistance(touches[0].pageX, touches[0].pageY, touches[1].pageX, touches[1].pageY);
+        // console.log('gestureState.dx', gestureState.dx, 'stepValue', stepValue)
+        console.log('gestureState', gestureState)
+        // const stepValue = (gestureState.dy - this.lastScaleDy);
+        // this.lastScaleDy = gestureState.dy
 
-          if(this.lastScalePinchDist === undefined) {
-            this.lastScalePinchDist = pinchDistance
-          }
+        // const scaleStep = (stepValue * zoomMultiplier) / screenHeight
+        // const { trackScale } = this.state;
 
-          const stepValue = pinchDistance - this.lastScalePinchDist;
-          this.lastScalePinchDist = pinchDistance
-  
-          const scaleStep = (stepValue * zoomMultiplier) / screenHeight
-          const { trackScale } = this.state;
-  
-          const newTrackScaleValue = trackScale + scaleStep;
-          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, maximumZoomLevel), 1)
-  
-          this.setState({trackScale: newBoundedTrackScaleValue})
-        } else {
-          const stepValue = (gestureState.dy - this.lastScaleDy);
-          this.lastScaleDy = gestureState.dy
-  
-          const scaleStep = (stepValue * zoomMultiplier) / screenHeight
-          const { trackScale } = this.state;
-  
-          const newTrackScaleValue = trackScale + scaleStep;
-          const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, maximumZoomLevel), 1)
-  
-          this.setState({trackScale: newBoundedTrackScaleValue})
-        }
+        // const newTrackScaleValue = trackScale + scaleStep;
+        // const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, maximumZoomLevel), 1)
+
+        // this.setState({trackScale: newBoundedTrackScaleValue})
       },
       onPanResponderTerminationRequest: (evt, gestureState) => true,
       onShouldBlockNativeResponder: (evt, gestureState) => true
@@ -330,6 +145,10 @@ export default class Trimmer extends React.Component {
     onScrubberPressIn && onScrubberPressIn()
   }
 
+  onScroll = (event) => {
+    console.log('event.nativeEvent.contentOffset.x ', event.nativeEvent.contentOffset.x)
+  }
+
   render() {
     const {
       maxTrimDuration,
@@ -337,12 +156,10 @@ export default class Trimmer extends React.Component {
       totalDuration,
       trimmerLeftHandlePosition,
       trimmerRightHandlePosition,
-      scrubberPosition,
       trackBackgroundColor = TRACK_BACKGROUND_COLOR,
       trackBorderColor = TRACK_BORDER_COLOR,
       markerColor = MARKER_COLOR,
       tintColor = TINT_COLOR,
-      scrubberColor = SCRUBBER_COLOR,
       centerOnLayout = CENTER_ON_LAYOUT,
       showScrollIndicator = SHOW_SCROLL_INDICATOR,
     } = this.props;
@@ -362,12 +179,7 @@ export default class Trimmer extends React.Component {
     }
 
     const {
-      trimming,
-      scrubbing,
-      internalScrubbingPosition,
       trackScale,
-      trimmingLeftHandleValue,
-      trimmingRightHandleValue
     } = this.state;
 
     const trackWidth = screenWidth * trackScale
@@ -379,39 +191,24 @@ export default class Trimmer extends React.Component {
       { width: trackWidth, backgroundColor: trackBackgroundColor, borderColor: trackBorderColor
     }];
         
-    const leftPosition = trimming ? trimmingLeftHandleValue : trimmerLeftHandlePosition
-    const rightPosition = trimming ? trimmingRightHandleValue : trimmerRightHandlePosition
-    const scrubPosition = scrubbing ? internalScrubbingPosition : scrubberPosition
-
-    const boundedLeftPosition = Math.max(leftPosition, 0)
-    const boundedScrubPosition = this.clamp({ value: scrubPosition, min: boundedLeftPosition, max: rightPosition })
-    const boundedTrimTime = Math.max(rightPosition - boundedLeftPosition, 0)
-
-    const actualTrimmerWidth = (boundedTrimTime / totalDuration) * trackWidth;
-    const actualTrimmerOffset = ((boundedLeftPosition / totalDuration) * trackWidth) + TRACK_PADDING_OFFSET + HANDLE_WIDTHS;
-    const actualScrubPosition = ((boundedScrubPosition / totalDuration) * trackWidth) + TRACK_PADDING_OFFSET + HANDLE_WIDTHS;
  
-    const onLayoutHandler = centerOnLayout
-        ? {
-            onLayout: () => {
-            const centerOffset = actualTrimmerOffset + (actualTrimmerWidth / 2) - (screenWidth / 2);
-            this.scrollView.scrollTo({x: centerOffset, y: 0, animated: false});
-            }
-        }
-        : null
-
-    if(isNaN(actualTrimmerWidth)) {
-      console.log('ERROR render() actualTrimmerWidth !== number. boundedTrimTime', boundedTrimTime, ', totalDuration', totalDuration, ', trackWidth', trackWidth)
-    }
+    // const onLayoutHandler = centerOnLayout
+    //     ? {
+    //         onLayout: () => {
+    //         const centerOffset = actualTrimmerOffset + (actualTrimmerWidth / 2) - (screenWidth / 2);
+    //         this.scrollView.scrollTo({x: centerOffset, y: 0, animated: false});
+    //         }
+    //     }
+    //     : null
 
     const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
-
+    console.log('Total markers', markers)
     return (
       <View style={styles.root}>
         <View style={styles.trimmerContainer} pointerEvents="none">
           <View style={[
             styles.trimmer,
-            { width: 200 },
+            { width: TRIMMER_WIDTH },
             { borderColor: tintColor }
           ]} >
             <View style={[styles.selection, { backgroundColor: tintColor }]}/>
@@ -420,14 +217,18 @@ export default class Trimmer extends React.Component {
         
         <ScrollView 
           ref={scrollView => this.scrollView = scrollView}
-          scrollEnabled={!trimming && !scrubbing}
+          scrollEnabled={true}
           style={[
             styles.horizontalScrollView,
             { transform: [{ scaleX: 1.0 }] },
           ]} 
           horizontal
+          onScroll={this.onScroll}
+          scrollEventThrottle={1}
+          bounces={false}
           showsHorizontalScrollIndicator={showScrollIndicator}
-          {...{...this.trackPanResponder.panHandlers, ...onLayoutHandler}}
+          // {...{...this.trackPanResponder.panHandlers, ...onLayoutHandler}}
+          // {...this.trackPanResponder.panHandlers}
         >
           <View style={trackBackgroundStyles}>
             <View style={styles.markersContainer}>
@@ -520,6 +321,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   markersContainer: {
+    paddingHorizontal: (screenWidth - TRIMMER_WIDTH) / 2,
     flexDirection: 'row',
     width: '100%',
     height: '100%',
