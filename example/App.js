@@ -9,6 +9,7 @@ import {
   Text,
 } from 'react-native'
 import Trimmer from 'react-native-trimmer'
+import MinimalTrimmer from './MinimalTrimmer'
 
 
 const maxTrimDuration = 60000;
@@ -86,6 +87,39 @@ export default class Example extends Component {
     }
   }
 
+
+  trimmerProps2 = () => {
+    const {
+      trimmerLeftHandlePosition,
+      trimmerRightHandlePosition,
+      scrubberPosition,
+      playling,
+    } = this.state;
+
+    return {
+      onHandleChange: this.onHandleChange,
+      totalDuration: totalDuration,
+      trimmerLeftHandlePosition: trimmerLeftHandlePosition,
+      trimmerRightHandlePosition: trimmerRightHandlePosition,
+      minimumTrimDuration: minimumTrimDuration,
+      maxTrimDuration: maxTrimDuration,
+      maximumZoomLevel: 200,
+      zoomMultiplier: 20,
+      initialZoomValue: 2,
+      scaleInOnInit: true,
+      tintColor: "#40E1A9",
+      markerColor: "#EDEFF3",
+      trackBackgroundColor: "#FFF",
+      trackBorderColor: "#5a3d5c",
+      scrubberColor: "#b7e778",
+      scrubberPosition: scrubberPosition,
+      onScrubbingComplete: this.onScrubbingComplete,
+      onLeftHandlePressIn: () => console.log('onLeftHandlePressIn'),
+      onRightHandlePressIn: () => console.log('onRightHandlePressIn'),
+      onScrubberPressIn: () => console.log('onScrubberPressIn'),
+    }
+  }
+
   render() {
     const {
       trimmerLeftHandlePosition,
@@ -117,6 +151,8 @@ export default class Example extends Component {
             <Trimmer
               {...this.trimmerProps()}
             />
+            <Text>new</Text>
+            <MinimalTrimmer {...this.trimmerProps2()}/>
             <ScrollView style={{ width: '100%', height: '100%', backgroundColor: 'blue' }}>
               <View style={{ width: '100%', height: 100, backgroundColor: '#f638dc', padding: 20 }}/>
               <View style={{ width: '100%', borderWidth: 2, borderColor: '#f638dc', padding: 20 }}>
