@@ -119,6 +119,8 @@ export default class App extends Component {
     return (
       <View style={styles.root}>
         <Example totalDuration={120000}/>
+        <View style={{ height: 1, width: '100%', backgroundColor: '#AAA' }}/>
+        <Example totalDuration={1200000}/>
       </View>
     )
   }

@@ -186,13 +186,13 @@ export default class Trimmer extends React.Component {
 const styles = StyleSheet.create({
   root: {
     width: '100%',
-    height: 90,
+    height: 80,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
   horizontalScrollView: {
-    height: 90,
+    height: 80,
     overflow: 'hidden',
     position: 'relative',
   },
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     width: 200,
     height: '100%',
-    paddingVertical: 17,
+    paddingVertical: 15,
     position: 'absolute',
     justifyContent: 'center',
     alignItems: 'center',
