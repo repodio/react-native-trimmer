@@ -72,8 +72,8 @@ export default class Trimmer extends React.Component {
 
     const markerCount = (totalDuration / markerIncrement) | 0;
     const trimmerLengthInSeconds = trimmerLength / 1000
-    const contentWidth = (markerCount / trimmerLengthInSeconds) * (markerIncrement / 1000)
-    console.log('contentWidth', contentWidth)
+    const contentWidth = ((markerCount / trimmerLengthInSeconds) * (markerIncrement / 1000))
+
     const markerMargin = ((((contentWidth) * screenWidth) - (screenWidth - trimmerWidth)) / markerCount) - MARKER_LENGTH
 
     return markerMargin
@@ -119,8 +119,6 @@ export default class Trimmer extends React.Component {
 
     const markerMargin = this.determineMarginLength()
 
-    console.log('markerMargin', markerMargin)
-    console.log('screenWidth', screenWidth)
     return (
       <View style={styles.root}>
         <View style={styles.trimmerContainer} pointerEvents="none">
