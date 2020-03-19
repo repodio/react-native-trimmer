@@ -7,9 +7,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Text,
+  Slider
 } from 'react-native'
 import Trimmer from 'react-native-trimmer'
-import Scrubber from 'react-native-scrubber'
+// import Slider from '@react-native-community/slider';
 import MinimalTrimmer from './MinimalTrimmer'
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -262,7 +263,7 @@ class Example extends Component {
       playing: false,
       startPosition: 0,
       totalDuration: props.totalDuration,
-      trimmerLengthOptionIndex: 0,
+      trimmerLengthOptionIndex: 5,
     }
   }
 
@@ -286,7 +287,10 @@ class Example extends Component {
     clearInterval(this.valueChangeInterval);
   }
 
-  onScrubberValueChanged = value => {
+  onSliderValueChanged = value => {
+    console.log('onSliderValueChanged')
+
+    return
     if( this.trimmerRef && this.trimmerRef.scrollViewRef)  {
       const { totalDuration, trimmerLengthOptionIndex } = this.state;
 
@@ -309,6 +313,13 @@ class Example extends Component {
     this.setState({ trimmerLengthOptionIndex: (this.state.trimmerLengthOptionIndex + 1) % TRIMMER_LENGTHS.length })
   }
 
+  onSlidingStart = () => {
+    console.log('onSlidingStart')
+  }
+
+  onSlidingComplete = () => {
+    console.log('onSlidingComplete')
+  }
 
   render() {
     const {
@@ -320,19 +331,41 @@ class Example extends Component {
 
     return (
       <View style={styles.exampleRoot}>
-        <Scrubber 
+        {/* <Scrubber 
           value={startPosition / 1000}
-          onSlidingComplete={this.onScrubberValueChanged}
+          onSlidingComplete={this.onSliderValueChanged}
           totalDuration={totalDuration / 1000}
           trackColor='#666'
           scrubbedColor='#40E1A9'
-        />
-        <View style={styles.trimmerContainer}>
-          <TrimmerLengthButton onPress={this.changeTrimmerLength} trimmerLengthOption={TRIMMER_LENGTHS[trimmerLengthOptionIndex]}/>
-          <MinimalTrimmer
+        /> */}
+        
+        <View style={styles.sliderContainer}>
+          <View style={{ flex: 0 }}>
+            <TrimmerLengthButton onPress={this.changeTrimmerLength} trimmerLengthOption={TRIMMER_LENGTHS[trimmerLengthOptionIndex]}/>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Slider
+              // style={styles.containerSlide}
+              thumbImage={require("./assets/thumb-image.png")}
+              minimumValue={0}
+              minimumTrackTintColor="#40E1A9"
+              maximumTrackTintColor="#B3BED3"
+              step={0}
+              maximumValue={1}
+              onValueChange={this.onSliderValueChanged}
+              onSlidingStart={this.onSlidingStart}
+              onSlidingComplete={this.onSlidingComplete}
+              value={startPosition / (totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)}
+            />
+          </View>
+          <View style={{ flex: 0 }}>
+            <PlaybackButton onPress={this.togglePlayButton} playing={playing}/> 
+          </View>
+        </View>
+        <MinimalTrimmer
               ref={ref => this.trimmerRef = ref}
               // value={startPosition}
-              width={screenWidth - 112}
+              width={screenWidth - 24}
               totalDuration={totalDuration}
               tintColor={"#40E1A9"}
               markerColor={"#EDEFF3"}
@@ -341,8 +374,6 @@ class Example extends Component {
               onStartValueChanged={this.onTrimmerValueChanged}
               trimmerLength={TRIMMER_LENGTHS[trimmerLengthOptionIndex].value}
           />
-          <PlaybackButton onPress={this.togglePlayButton} playing={playing}/> 
-        </View>
       </View>
     )
   }
@@ -376,7 +407,7 @@ const styles = StyleSheet.create({
   trimmerButtonLabel: {
     fontSize: 11,
   },
-  trimmerContainer: {
+  sliderContainer: {
     // width: screenWidth,
     width: '100%',
     justifyContent: 'center',

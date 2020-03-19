@@ -62,7 +62,10 @@ export default class Trimmer extends React.Component {
   }
 
   onScroll = ({ nativeEvent: { contentOffset, contentSize }}) => {
-    const { totalDuration, onStartValueChanged } = this.props;
+    const { scrubbing, totalDuration, onStartValueChanged } = this.props;
+    if(this.scrubbing) {
+      return;
+    }
     console.log('scrolling')
     const newStartingTime = (contentOffset.x / contentSize.width) * totalDuration
     onStartValueChanged && onStartValueChanged(newStartingTime)
