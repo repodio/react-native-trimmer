@@ -63,7 +63,7 @@ export default class Trimmer extends React.Component {
 
   onScroll = ({ nativeEvent: { contentOffset, contentSize }}) => {
     const { scrubbing, totalDuration, onStartValueChanged } = this.props;
-    if(this.scrubbing) {
+    if(scrubbing) {
       return;
     }
     console.log('scrolling')
@@ -90,6 +90,7 @@ export default class Trimmer extends React.Component {
       markerMargin,
       contentWidth,
     })
+    console.log('contentWidth: ', contentWidth)
     return markerMargin
   }
 

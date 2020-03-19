@@ -288,17 +288,18 @@ class Example extends Component {
   }
 
   onSliderValueChanged = value => {
-    console.log('onSliderValueChanged')
+    this.setState({ scrubbing: true })
+    // console.log('onSliderValueChanged')
 
-    return
     if( this.trimmerRef && this.trimmerRef.scrollViewRef)  {
       const { totalDuration, trimmerLengthOptionIndex } = this.state;
 
-      const newStartingPosition = clamp({ num: value * 1000, min: 0, max: totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value })
+      const newStartingPosition = clamp({ num: value * totalDuration, min: 0, max: totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value })
       const newScrollPosition = (newStartingPosition / totalDuration) * this.trimmerRef.state.contentWidth
+      console.log('newScrollPosition', newStartingPosition)
 
       this.trimmerRef.scrollViewRef.scrollTo({x: newScrollPosition, y: 0, animated: false})
-      this.setState({ startPosition: newStartingPosition })
+      // this.setState({ startPosition: newStartingPosition })
 
     }
   }
@@ -314,10 +315,12 @@ class Example extends Component {
   }
 
   onSlidingStart = () => {
+    this.setState({ scrubbing: true })
     console.log('onSlidingStart')
   }
 
   onSlidingComplete = () => {
+    this.setState({ scrubbing: false })
     console.log('onSlidingComplete')
   }
 
@@ -327,6 +330,7 @@ class Example extends Component {
       trimmerLengthOptionIndex,
       playing,
       startPosition,
+      scrubbing,
     } = this.state;
 
     return (
@@ -363,17 +367,18 @@ class Example extends Component {
           </View>
         </View>
         <MinimalTrimmer
-              ref={ref => this.trimmerRef = ref}
-              // value={startPosition}
-              width={screenWidth - 24}
-              totalDuration={totalDuration}
-              tintColor={"#40E1A9"}
-              markerColor={"#EDEFF3"}
-              trackBackgroundColor={"#FFF"}
-              trackBorderColor={"#5a3d5c"}
-              onStartValueChanged={this.onTrimmerValueChanged}
-              trimmerLength={TRIMMER_LENGTHS[trimmerLengthOptionIndex].value}
-          />
+          scrubbing={scrubbing}
+          ref={ref => this.trimmerRef = ref}
+          // value={startPosition}
+          width={screenWidth - 24}
+          totalDuration={totalDuration}
+          tintColor={"#40E1A9"}
+          markerColor={"#EDEFF3"}
+          trackBackgroundColor={"#FFF"}
+          trackBorderColor={"#5a3d5c"}
+          onStartValueChanged={this.onTrimmerValueChanged}
+          trimmerLength={TRIMMER_LENGTHS[trimmerLengthOptionIndex].value}
+        />
       </View>
     )
   }
