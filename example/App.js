@@ -111,7 +111,7 @@ formatMilliseconds = ( ms ) => {
   // 4- Keep only seconds not extracted to minutes:
   seconds = seconds % 60;
 
-  return `${round(hours)}h:${round(minutes)}m:${seconds.toFixed(3)}s`
+  return `${round(hours)}:${round(minutes) < 10 ? `0${round(minutes)}` : round(minutes)}:${seconds < 10 ? `0${seconds.toFixed(0)}` : seconds.toFixed(0) }`
 }
 
 export default class App extends Component {
@@ -289,17 +289,16 @@ class Example extends Component {
 
   onSliderValueChanged = value => {
     this.setState({ scrubbing: true })
-    // console.log('onSliderValueChanged')
 
     if( this.trimmerRef && this.trimmerRef.scrollViewRef)  {
       const { totalDuration, trimmerLengthOptionIndex } = this.state;
 
-      const newStartingPosition = clamp({ num: value * totalDuration, min: 0, max: totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value })
+      const newStartingPosition = value * (totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)
       const newScrollPosition = (newStartingPosition / totalDuration) * this.trimmerRef.state.contentWidth
       console.log('newScrollPosition', newStartingPosition)
 
       this.trimmerRef.scrollViewRef.scrollTo({x: newScrollPosition, y: 0, animated: false})
-      // this.setState({ startPosition: newStartingPosition })
+      this.setState({ startPositionLabel: newStartingPosition })
 
     }
   }
@@ -314,14 +313,19 @@ class Example extends Component {
     this.setState({ trimmerLengthOptionIndex: (this.state.trimmerLengthOptionIndex + 1) % TRIMMER_LENGTHS.length })
   }
 
-  onSlidingStart = () => {
-    this.setState({ scrubbing: true })
-    console.log('onSlidingStart')
-  }
-
-  onSlidingComplete = () => {
+  onSlidingComplete = value => {
     this.setState({ scrubbing: false })
-    console.log('onSlidingComplete')
+    
+    if( this.trimmerRef && this.trimmerRef.scrollViewRef)  {
+      const { totalDuration, trimmerLengthOptionIndex } = this.state;
+
+      const newStartingPosition = value * (totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)
+      console.log('onSlidingComplete newScrollPosition', newStartingPosition)
+
+      // this.trimmerRef.scrollViewRef.scrollTo({x: newScrollPosition, y: 0, animated: false})
+      this.setState({ startPosition: newStartingPosition })
+
+    }
   }
 
   render() {
@@ -330,6 +334,7 @@ class Example extends Component {
       trimmerLengthOptionIndex,
       playing,
       startPosition,
+      startPositionLabel,
       scrubbing,
     } = this.state;
 
@@ -357,10 +362,13 @@ class Example extends Component {
               step={0}
               maximumValue={1}
               onValueChange={this.onSliderValueChanged}
-              onSlidingStart={this.onSlidingStart}
               onSlidingComplete={this.onSlidingComplete}
               value={startPosition / (totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)}
             />
+            <View style={styles.timesContainer}>
+              <Text style={styles.timesLabel}>{scrubbing ? formatMilliseconds(startPositionLabel) : formatMilliseconds(startPosition)}</Text>
+              <Text style={styles.timesLabel}>{scrubbing ? formatMilliseconds(startPositionLabel + TRIMMER_LENGTHS[trimmerLengthOptionIndex].value) : formatMilliseconds(startPosition + TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)}</Text>
+            </View>
           </View>
           <View style={{ flex: 0 }}>
             <PlaybackButton onPress={this.togglePlayButton} playing={playing}/> 
@@ -418,9 +426,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+    marginBottom: 8
   },
   playbackButtonRoot: {
     marginRight: 16,
     marginLeft: 12,
+  },
+  timesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  timesLabel: {
+    fontSize: 12,
+    color: '#666',
+    letterSpacing: 1,
   }
 });
