@@ -159,8 +159,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    borderColor: 'red',
-    borderWidth: 1,
   },
   horizontalScrollView: {
     height: 90,
@@ -196,10 +194,6 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderRadius: 3,
     // height: 106,
-
-
-    borderLeftWidth: 0,
-    borderRightWidth: 0,
   },
   selection: {
     opacity: 0.2,

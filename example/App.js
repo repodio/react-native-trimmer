@@ -32,47 +32,47 @@ const TRIMMER_LENGTHS = [
     key: "5s",
   },
   {
-    value: 5000,
+    value: 10000,
     key: "10s",
   },
   {
-    value: 5000,
+    value: 15000,
     key: "15s",
   },
   {
-    value: 5000,
+    value: 20000,
     key: "20s",
   },
   {
-    value: 5000,
+    value: 25000,
     key: "25s",
   },
   {
-    value: 5000,
+    value: 30000,
     key: "30s",
   },
   {
-    value: 5000,
+    value: 35000,
     key: "35s",
   },
   {
-    value: 5000,
-    key: "45s",
-  },
-  {
-    value: 5000,
+    value: 40000,
     key: "40s",
   },
   {
-    value: 5000,
+    value: 45000,
     key: "45s",
   },
   {
-    value: 5000,
+    value: 50000,
+    key: "50s",
+  },
+  {
+    value: 55000,
     key: "55s",
   },
   {
-    value: 5000,
+    value: 60000,
     key: "60s",
   },
 ]
@@ -81,7 +81,7 @@ const TrimmerLengthButton = ({ trimmerLengthOption, onPress }) => {
   return (
     <TouchableOpacity onPress={onPress}>
       <View style={styles.trimmerButtonRoot}>
-        <Text>{trimmerLengthOption.key}</Text>
+        <Text style={styles.trimmerButtonLabel}>{trimmerLengthOption.key}</Text>
       </View>
     </TouchableOpacity>
   )
@@ -347,8 +347,6 @@ const styles = StyleSheet.create({
     padding: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    borderColor: 'blue',
-    borderWidth: 1,
   },
   trimmerButtonRoot: {
     marginLeft: 12,
@@ -360,6 +358,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     justifyContent: "center",
     alignItems: "center"
+  },
+  trimmerButtonLabel: {
+    fontSize: 11,
   },
   trimmerContainer: {
     // width: screenWidth,
