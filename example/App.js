@@ -14,7 +14,9 @@ import MinimalTrimmer from './MinimalTrimmer'
 
 const maxTrimDuration = 60000;
 const minimumTrimDuration = 5000;
-const totalDuration = 360000;
+const totalDuration = 1200000;
+
+const trimmerLength = 60000
 
 const initialLeftHandlePosition = 0;
 const initialRightHandlePosition = 36000;
@@ -26,9 +28,25 @@ export default class Example extends Component {
     playing: false,
     trimmerLeftHandlePosition: initialLeftHandlePosition,
     trimmerRightHandlePosition: initialRightHandlePosition,
-    scrubberPosition: 1000
+    scrubberPosition: 1000,
+    startPosition: 0,
   }
   
+  round = num => Math.round(num).toFixed(0)
+
+  formatMilliseconds = ( ms ) => {
+    // 1- Convert to seconds:
+    var seconds = ms / 1000;
+    // 2- Extract hours:
+    var hours = parseInt( seconds / 3600 ); // 3,600 seconds in 1 hour
+    seconds = seconds % 3600; // seconds remaining after extracting hours
+    // 3- Extract minutes:
+    var minutes = parseInt( seconds / 60 ); // 60 seconds in 1 minute
+    // 4- Keep only seconds not extracted to minutes:
+    seconds = seconds % 60;
+
+    return `${this.round(hours)}h:${this.round(minutes)}m:${seconds.toFixed(3)}s`
+}
 
   playScrubber = () => {
     this.setState({ playling: true });
@@ -88,6 +106,10 @@ export default class Example extends Component {
   }
 
 
+  onStartValueChanged = (val) => {
+    this.setState({ startPosition: val })
+  }
+
   trimmerProps2 = () => {
     const {
       trimmerLeftHandlePosition,
@@ -97,26 +119,13 @@ export default class Example extends Component {
     } = this.state;
 
     return {
-      onHandleChange: this.onHandleChange,
       totalDuration: totalDuration,
-      trimmerLeftHandlePosition: trimmerLeftHandlePosition,
-      trimmerRightHandlePosition: trimmerRightHandlePosition,
-      minimumTrimDuration: minimumTrimDuration,
-      maxTrimDuration: maxTrimDuration,
-      maximumZoomLevel: 200,
-      zoomMultiplier: 20,
-      initialZoomValue: 2,
-      scaleInOnInit: true,
       tintColor: "#40E1A9",
       markerColor: "#EDEFF3",
       trackBackgroundColor: "#FFF",
       trackBorderColor: "#5a3d5c",
-      scrubberColor: "#b7e778",
-      scrubberPosition: scrubberPosition,
-      onScrubbingComplete: this.onScrubbingComplete,
-      onLeftHandlePressIn: () => console.log('onLeftHandlePressIn'),
-      onRightHandlePressIn: () => console.log('onRightHandlePressIn'),
-      onScrubberPressIn: () => console.log('onScrubberPressIn'),
+      onStartValueChanged: this.onStartValueChanged,
+      trimmerLength,
     }
   }
 
@@ -126,6 +135,7 @@ export default class Example extends Component {
       trimmerRightHandlePosition,
       scrubberPosition,
       playling,
+      startPosition,
     } = this.state;
     
     return (
@@ -146,12 +156,8 @@ export default class Example extends Component {
                 ? <Button title="Pause" color="#f638dc" onPress={this.pauseScrubber}/>
                 : <Button title="Play" color="#f638dc" onPress={this.playScrubber}/>
             }
-            <Text>left: {trimmerLeftHandlePosition}</Text>
-            <Text>right: {trimmerRightHandlePosition}</Text>
-            <Trimmer
-              {...this.trimmerProps()}
-            />
-            <Text>new</Text>
+            <Text>Total Time: {this.formatMilliseconds(totalDuration)}</Text>
+            <Text>Start Time: {this.formatMilliseconds(startPosition)}</Text>
             <MinimalTrimmer {...this.trimmerProps2()}/>
             <ScrollView style={{ width: '100%', height: '100%', backgroundColor: 'blue' }}>
               <View style={{ width: '100%', height: 100, backgroundColor: '#f638dc', padding: 20 }}/>

@@ -25,12 +25,18 @@ const CENTER_ON_LAYOUT = true
 const TRACK_PADDING_OFFSET = 10;
 const HANDLE_WIDTHS = 30;
 
-const MARKER_INCREMENT = 2000;
+const MARKER_INCREMENT = 1000;
 const SPECIAL_MARKER_INCREMEMNT = 2;
 
 
-const TRIMMER_WIDTH = 200;
+// const MARKER_MARGIN = 1.792; // 60 seconds
+// const MARKER_MARGIN = 8.042; // 30 seconds
+const MARKER_MARGIN = 70.542; // 5 seconds
 
+
+const TRIMMER_WIDTH = 200;
+const TRIMMER_LENGTH = 5000;
+const MARKER_LENGTH = 3;
 
 const TRACK_BACKGROUND_COLOR = '#FFF';
 const TRACK_BORDER_COLOR = '#c8dad3';
@@ -39,129 +45,53 @@ const TINT_COLOR = '#93b5b3';
 const SCRUBBER_COLOR = '#63707e'
 
 export default class Trimmer extends React.Component {
-  constructor(props) {
-    super(props);
+  onScroll = ({ nativeEvent: { contentOffset, contentSize }}) => {
+    const { totalDuration, onStartValueChanged } = this.props;
 
-    let trackScale = props.initialZoomValue || INITIAL_ZOOM
-    if(props.scaleInOnInit) {
-      const { 
-        maxTrimDuration = MAXIMUM_TRIM_DURATION,
-        scaleInOnInitType = SCALE_ON_INIT_TYPE,
-        trimmerRightHandlePosition,
-        trimmerLeftHandlePosition
-      } = this.props;
-      const isMaxDuration = scaleInOnInitType === 'max-duration';
-      const trimDuration = isMaxDuration ? maxTrimDuration : (trimmerRightHandlePosition - trimmerLeftHandlePosition);
-      const smartScaleDivider = isMaxDuration ? 3 : 5; // Based on testing, 3 works better when the goal is to have the entire trimmer fit in the visible area
-      const percentTrimmed = trimDuration / props.totalDuration;
-      const smartScaleValue = (2 / percentTrimmed) / smartScaleDivider;
-      trackScale = this.clamp({ value: smartScaleValue, min: 1, max: props.maximumZoomLevel || MAXIMUM_SCALE_VALUE})
-    }
+    const newStartingTime = (contentOffset.x / contentSize.width) * totalDuration
+    console.log('stats ', {
+      offset: contentOffset.x,
+      contentWidth: contentSize.width,
+      screenWidth,
+      totalDuration,
+      twimmerWidth: TRIMMER_WIDTH,
+    })
 
-    this.initiateAnimator();
-    this.state = {
-      trackScale,                                             // the scale factor for the track
-      trimmingLeftHandleValue: 0,
-      trimmingRightHandleValue: 0,
-      internalScrubbingPosition: 0,
-    }
-  }
-  
-  clamp = ({ value, min, max }) => Math.min(Math.max(value, min), max);
-
-  initiateAnimator = () => {
+    onStartValueChanged && onStartValueChanged(newStartingTime)
+    // console.log('contentOffset.x ', contentOffset.x, totalDuration)
     
-    this.scaleTrackValue = new Animated.Value(0);
-    this.lastDy = 0;
-    this.trackPanResponder = this.createTrackPanResponder()
   }
 
-  calculatePinchDistance = (x1, y1, x2, y2) => {
-    let dx = Math.abs(x1 - x2)
-    let dy = Math.abs(y1 - y2)
-    const distance = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    return distance
-  }
-  
-  createTrackPanResponder = () => PanResponder.create({
-      // Ask to be the responder:
-      onStartShouldSetPanResponder: (evt, gestureState) => true,
-      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-      onMoveShouldSetPanResponder: (evt, gestureState) => true,
-      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
-      onPanResponderGrant: (evt, gestureState) => {
-        // this.lastScaleDy = 0;
+  determineMarginLength = () => {
+    const { trimmerLength = TRIMMER_LENGTH, totalDuration, trimmerWidth = TRIMMER_WIDTH } = this.props;
+    const markerCount = (totalDuration / MARKER_INCREMENT) | 0;
+    console.log('markerCount', markerCount);
+    console.log('markerCount', markerCount);
+    const trimmerLengthInSeconds = trimmerLength / 1000
 
-        this.lastScaleDX = 0;
+    console.log('markerCount / trimmerLengthInSeconds', markerCount / trimmerLengthInSeconds);
+    console.log('(markerCount / trimmerLengthInSeconds) * screenWidth)', (markerCount / trimmerLengthInSeconds) * screenWidth);
+    console.log('(screenWidth - trimmerWidth)', (screenWidth - trimmerWidth));
+    console.log('(((markerCount / trimmerLengthInSeconds) * screenWidth) - (screenWidth - trimmerWidth)) / markerCount)', (((markerCount / trimmerLengthInSeconds) * screenWidth) - (screenWidth - trimmerWidth)) / markerCount);
 
-      },
-      onPanResponderMove: (evt, gestureState) => {
-        const stepValue = (gestureState.dx - this.lastScaleDX);
-        this.lastScaleDX = gestureState.dx
-
-        // console.log('gestureState.dx', gestureState.dx, 'stepValue', stepValue)
-        console.log('gestureState', gestureState)
-        // const stepValue = (gestureState.dy - this.lastScaleDy);
-        // this.lastScaleDy = gestureState.dy
-
-        // const scaleStep = (stepValue * zoomMultiplier) / screenHeight
-        // const { trackScale } = this.state;
-
-        // const newTrackScaleValue = trackScale + scaleStep;
-        // const newBoundedTrackScaleValue = Math.max(Math.min(newTrackScaleValue, maximumZoomLevel), 1)
-
-        // this.setState({trackScale: newBoundedTrackScaleValue})
-      },
-      onPanResponderTerminationRequest: (evt, gestureState) => true,
-      onShouldBlockNativeResponder: (evt, gestureState) => true
-  })
-
-  handleScrubbingValueChange = (newScrubPosition) => {
-    const { onScrubbingComplete } = this.props;
-    onScrubbingComplete && onScrubbingComplete(newScrubPosition | 0)
-  }
-
-  handleHandleSizeChange = () => {
-    const { onHandleChange } = this.props;
-    const { trimmingLeftHandleValue, trimmingRightHandleValue } = this.state;
-    onHandleChange && onHandleChange({
-      leftPosition: trimmingLeftHandleValue | 0,
-      rightPosition: trimmingRightHandleValue | 0,
-    });
-  }
-
-  handleLeftHandlePressIn = () => {
-    const { onLeftHandlePressIn } = this.props;
-    onLeftHandlePressIn && onLeftHandlePressIn()
-  }
-
-  handleRightHandlePressIn = () => {
-    const { onRightHandlePressIn } = this.props;
-    onRightHandlePressIn && onRightHandlePressIn()
-  }
-
-  handleScrubberPressIn = () => {
-    const { onScrubberPressIn } = this.props;
-    onScrubberPressIn && onScrubberPressIn()
-  }
-
-  onScroll = (event) => {
-    console.log('event.nativeEvent.contentOffset.x ', event.nativeEvent.contentOffset.x)
+    const markerMargin = ((((markerCount / trimmerLengthInSeconds) * screenWidth) - (screenWidth - trimmerWidth)) / markerCount) - MARKER_LENGTH
+    
+    
+    
+    return markerMargin
   }
 
   render() {
     const {
-      maxTrimDuration,
-      minimumTrimDuration,
       totalDuration,
-      trimmerLeftHandlePosition,
-      trimmerRightHandlePosition,
       trackBackgroundColor = TRACK_BACKGROUND_COLOR,
       trackBorderColor = TRACK_BORDER_COLOR,
       markerColor = MARKER_COLOR,
       tintColor = TINT_COLOR,
       centerOnLayout = CENTER_ON_LAYOUT,
       showScrollIndicator = SHOW_SCROLL_INDICATOR,
+      trimmerLength,
+      trimmerWidth = TRIMMER_WIDTH,
     } = this.props;
 
     // if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
@@ -171,25 +101,11 @@ export default class Trimmer extends React.Component {
     //   return null
     // }
 
-    if(minimumTrimDuration > trimmerRightHandlePosition - trimmerLeftHandlePosition) {
-      console.error('minimumTrimDuration is less than trimRightHandlePosition minus trimmerLeftHandlePosition', {
-        minimumTrimDuration, trimmerRightHandlePosition, trimmerLeftHandlePosition
-      })
-      return null
-    }
-
-    const {
-      trackScale,
-    } = this.state;
-
-    const trackWidth = screenWidth * trackScale
-    if(isNaN(trackWidth)) {
-      console.log('ERROR render() trackWidth !== number. screenWidth', screenWidth, ', trackScale', trackScale, ', ', trackWidth)
-    }
     const trackBackgroundStyles = [
       styles.trackBackground,
-      { width: trackWidth, backgroundColor: trackBackgroundColor, borderColor: trackBorderColor
-    }];
+      // { width: trackWidth, backgroundColor: trackBackgroundColor, borderColor: trackBorderColor
+        { width: '100%', backgroundColor: trackBackgroundColor, borderColor: trackBorderColor
+      }];
         
  
     // const onLayoutHandler = centerOnLayout
@@ -202,7 +118,11 @@ export default class Trimmer extends React.Component {
     //     : null
 
     const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
-    console.log('Total markers', markers)
+
+    const markerMargin = this.determineMarginLength()
+
+    console.log('markerMargin', markerMargin)
+    console.log('screenWidth', screenWidth)
     return (
       <View style={styles.root}>
         <View style={styles.trimmerContainer} pointerEvents="none">
@@ -231,15 +151,15 @@ export default class Trimmer extends React.Component {
           // {...this.trackPanResponder.panHandlers}
         >
           <View style={trackBackgroundStyles}>
-            <View style={styles.markersContainer}>
+            <View style={[styles.markersContainer, { paddingHorizontal: (screenWidth - trimmerWidth) / 2 }]}>
               {
                 markers.map((m,i) => (
-                  <View 
+                  <Animated.View 
                     key={`marker-${i}`} 
                     style={[
                       styles.marker,
                       i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
-                      { backgroundColor: markerColor }
+                      { backgroundColor: markerColor, marginRight: markerMargin }
                     ]}/>
                 ))
               }
@@ -254,8 +174,6 @@ export default class Trimmer extends React.Component {
 const styles = StyleSheet.create({
   root: {
     height: 90,
-    borderColor: 'red',
-    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -264,8 +182,6 @@ const styles = StyleSheet.create({
     height: 90,
     overflow: 'hidden',
     position: 'relative',
-    borderColor: 'green',
-    borderWidth: 1,
   },
   trackBackground: {
     overflow: 'hidden',
@@ -277,8 +193,6 @@ const styles = StyleSheet.create({
   trimmerContainer: {
     // flex: 1,
     width: '100%',
-    borderColor: 'blue',
-    borderWidth: 1,
     height: '100%',
     paddingVertical: 17,
     position: 'absolute',
@@ -298,6 +212,10 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderRadius: 3,
     // height: 106,
+
+
+    borderLeftWidth: 0,
+    borderRightWidth: 0,
   },
   handle: {
     position: 'absolute',
@@ -323,14 +241,14 @@ const styles = StyleSheet.create({
   markersContainer: {
     paddingHorizontal: (screenWidth - TRIMMER_WIDTH) / 2,
     flexDirection: 'row',
-    width: '100%',
+    // width: '100%',
     height: '100%',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   marker: {
     backgroundColor: MARKER_COLOR, // marker color,
-    width: 3,
+    width: MARKER_LENGTH,
     height: 6,
     borderRadius: 3,
   },
