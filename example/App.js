@@ -97,6 +97,8 @@ const PlaybackButton = ({ playing, onPress }) => {
 
 round = num => Math.round(num).toFixed(0)
 
+clamp = ({ num, min, max }) => num <= min ? min : num >= max ? max : num;
+
 formatMilliseconds = ( ms ) => {
   // 1- Convert to seconds:
   var seconds = ms / 1000;
@@ -237,7 +239,7 @@ export default class App extends Component {
   //           }
   //           <Text>Total Time: {formatMilliseconds(totalDuration)}</Text>
   //           <Text>Start Time: {formatMilliseconds(startPosition)}</Text>
-  //           <MinimalTrimmer {...this.trimmerProps2()}/>
+  //           <MinimalTrimmer {...this.trimmerRefProps2()}/>
   //           <ScrollView style={{ width: '100%', height: '100%', backgroundColor: 'blue' }}>
   //             <View style={{ width: '100%', height: 100, backgroundColor: '#f638dc', padding: 20 }}/>
   //             <View style={{ width: '100%', borderWidth: 2, borderColor: '#f638dc', padding: 20 }}>
@@ -285,12 +287,22 @@ class Example extends Component {
   }
 
   onScrubberValueChanged = value => {
-    console.log('value', value)
-    this.setState({ startPosition: value * 1000 })
+    if( this.trimmerRef && this.trimmerRef.scrollViewRef)  {
+      const { totalDuration, trimmerLengthOptionIndex } = this.state;
+
+      const newStartingPosition = clamp({ num: value * 1000, min: 0, max: totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value })
+      const newScrollPosition = (newStartingPosition / totalDuration) * this.trimmerRef.state.contentWidth
+
+      this.trimmerRef.scrollViewRef.scrollTo({x: newScrollPosition, y: 0, animated: false})
+      this.setState({ startPosition: newStartingPosition })
+
+    }
   }
 
-  onTrimmerValueChanged = (val) => {
-    this.setState({ startPosition: val })
+  onTrimmerValueChanged = value => {
+    console.log('onTrimmerValueChanged', value)
+
+    this.setState({ startPosition: value })
   }
 
   changeTrimmerLength = () => {
@@ -318,6 +330,8 @@ class Example extends Component {
         <View style={styles.trimmerContainer}>
           <TrimmerLengthButton onPress={this.changeTrimmerLength} trimmerLengthOption={TRIMMER_LENGTHS[trimmerLengthOptionIndex]}/>
           <MinimalTrimmer
+              ref={ref => this.trimmerRef = ref}
+              // value={startPosition}
               width={screenWidth - 112}
               totalDuration={totalDuration}
               tintColor={"#40E1A9"}

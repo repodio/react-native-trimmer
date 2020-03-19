@@ -39,11 +39,32 @@ const SCRUBBER_COLOR = '#63707e'
 
 export default class Trimmer extends React.Component {
 
+  state = {
+    markerMargin: 0,
+    contentWidth: 0,
+  }
+
+  componentDidMount() {
+    this.determineMarginLength()
+  }
+
+  componentDidUpdate(prevProps) {
+
+    if(this.props.trimmerLength !== prevProps.trimmerLength) {
+      this.determineMarginLength()
+    }
+
+    // const newPosition = (this.props.value / this.props.totalDuration) * this.state.contentWidth
+
+    // // Typical usage (don't forget to compare props):
+    // console.log('componentDidUpdate', this.props.value, this.state.contentWidth)
+    // this.scrollViewRef.scrollTo({x: newPosition, y: 0, animated: false})
+  }
+
   onScroll = ({ nativeEvent: { contentOffset, contentSize }}) => {
     const { totalDuration, onStartValueChanged } = this.props;
-
+    console.log('scrolling')
     const newStartingTime = (contentOffset.x / contentSize.width) * totalDuration
-
     onStartValueChanged && onStartValueChanged(newStartingTime)
   }
 
@@ -58,10 +79,14 @@ export default class Trimmer extends React.Component {
 
     const markerCount = (totalDuration / markerIncrement) | 0;
     const trimmerLengthInSeconds = trimmerLength / 1000
-    const contentWidth = ((markerCount / trimmerLengthInSeconds) * (markerIncrement / 1000))
+    const contentWidth = ((markerCount / trimmerLengthInSeconds) * (markerIncrement / 1000)) * width
 
-    const markerMargin = ((((contentWidth) * width) - (width - trimmerWidth)) / markerCount) - MARKER_LENGTH
+    const markerMargin = (((contentWidth) - (width - trimmerWidth)) / markerCount) - MARKER_LENGTH
 
+    this.setState({
+      markerMargin,
+      contentWidth,
+    })
     return markerMargin
   }
 
@@ -86,6 +111,10 @@ export default class Trimmer extends React.Component {
       width
     } = this.props;
 
+    const {
+      markerMargin
+    } = this.state;
+
     // if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
     //   console.error('maxTrimDuration is less than trimRightHandlePosition minus trimmerLeftHandlePosition', {
     //     minimumTrimDuration, trimmerRightHandlePosition, trimmerLeftHandlePosition
@@ -102,8 +131,6 @@ export default class Trimmer extends React.Component {
 
     const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
 
-    const markerMargin = this.determineMarginLength()
-
     return (
       <View style={[styles.root, { width }]} onLayout={this.onLayout}>
         <View style={styles.trimmerContainer} pointerEvents="none">
@@ -117,7 +144,7 @@ export default class Trimmer extends React.Component {
         </View>
         
         <ScrollView 
-          ref={scrollView => this.scrollView = scrollView}
+          ref={ref => this.scrollViewRef = ref}
           scrollEnabled={true}
           style={[
             styles.horizontalScrollView,
