@@ -10,15 +10,8 @@ import {
   TouchableHighlight,
 } from 'react-native';
 
-const { width: screenWidth, height: screenHeight} = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
-
-const MINIMUM_TRIM_DURATION = 1000;
-const MAXIMUM_TRIM_DURATION = 60000;
-const MAXIMUM_SCALE_VALUE = 50;
-const ZOOM_MULTIPLIER = 5;
-const INITIAL_ZOOM = 2;
-const SCALE_ON_INIT_TYPE = 'trim-duration'
 const SHOW_SCROLL_INDICATOR = true
 const CENTER_ON_LAYOUT = true
 
@@ -34,7 +27,7 @@ const SPECIAL_MARKER_INCREMEMNT = 2;
 const MARKER_MARGIN = 70.542; // 5 seconds
 
 
-const TRIMMER_WIDTH = 200;
+const TRIMMER_WIDTH = 150;
 const TRIMMER_LENGTH = 5000;
 const MARKER_LENGTH = 3;
 
@@ -45,21 +38,13 @@ const TINT_COLOR = '#93b5b3';
 const SCRUBBER_COLOR = '#63707e'
 
 export default class Trimmer extends React.Component {
+
   onScroll = ({ nativeEvent: { contentOffset, contentSize }}) => {
     const { totalDuration, onStartValueChanged } = this.props;
 
     const newStartingTime = (contentOffset.x / contentSize.width) * totalDuration
-    console.log('stats ', {
-      offset: contentOffset.x,
-      contentWidth: contentSize.width,
-      screenWidth,
-      totalDuration,
-      twimmerWidth: TRIMMER_WIDTH,
-    })
 
     onStartValueChanged && onStartValueChanged(newStartingTime)
-    // console.log('contentOffset.x ', contentOffset.x, totalDuration)
-    
   }
 
   determineMarginLength = () => {
@@ -68,16 +53,24 @@ export default class Trimmer extends React.Component {
       totalDuration,
       trimmerWidth = TRIMMER_WIDTH,
       markerIncrement = MARKER_INCREMENT,
+      width,
     } = this.props;
 
     const markerCount = (totalDuration / markerIncrement) | 0;
     const trimmerLengthInSeconds = trimmerLength / 1000
     const contentWidth = ((markerCount / trimmerLengthInSeconds) * (markerIncrement / 1000))
 
-    const markerMargin = ((((contentWidth) * screenWidth) - (screenWidth - trimmerWidth)) / markerCount) - MARKER_LENGTH
+    const markerMargin = ((((contentWidth) * width) - (width - trimmerWidth)) / markerCount) - MARKER_LENGTH
 
     return markerMargin
   }
+
+  // onLayout = ({ nativeEvent }) => {
+
+  //   if (this.state.viewportWidth) return // layout was already called
+  //   this.setState({viewportWidth: nativeEvent.layout.width})
+  //   console.log('width', nativeEvent.layout.width);
+  // }
 
   render() {
     const {
@@ -90,6 +83,7 @@ export default class Trimmer extends React.Component {
       showScrollIndicator = SHOW_SCROLL_INDICATOR,
       trimmerLength,
       trimmerWidth = TRIMMER_WIDTH,
+      width
     } = this.props;
 
     // if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
@@ -105,22 +99,13 @@ export default class Trimmer extends React.Component {
         { width: '100%', backgroundColor: trackBackgroundColor, borderColor: trackBorderColor
       }];
         
- 
-    // const onLayoutHandler = centerOnLayout
-    //     ? {
-    //         onLayout: () => {
-    //         const centerOffset = actualTrimmerOffset + (actualTrimmerWidth / 2) - (screenWidth / 2);
-    //         this.scrollView.scrollTo({x: centerOffset, y: 0, animated: false});
-    //         }
-    //     }
-    //     : null
 
     const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
 
     const markerMargin = this.determineMarginLength()
 
     return (
-      <View style={styles.root}>
+      <View style={[styles.root, { width }]} onLayout={this.onLayout}>
         <View style={styles.trimmerContainer} pointerEvents="none">
           <View style={[
             styles.trimmer,
@@ -147,7 +132,7 @@ export default class Trimmer extends React.Component {
           // {...this.trackPanResponder.panHandlers}
         >
           <View style={trackBackgroundStyles}>
-            <View style={[styles.markersContainer, { paddingHorizontal: (screenWidth - trimmerWidth) / 2 }]}>
+            <View style={[styles.markersContainer, { paddingHorizontal: (width - trimmerWidth) / 2 }]}>
               {
                 markers.map((m,i) => (
                   <Animated.View 
@@ -169,10 +154,13 @@ export default class Trimmer extends React.Component {
 
 const styles = StyleSheet.create({
   root: {
+    width: '100%',
     height: 90,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    borderColor: 'red',
+    borderWidth: 1,
   },
   horizontalScrollView: {
     height: 90,
@@ -188,7 +176,7 @@ const styles = StyleSheet.create({
   },
   trimmerContainer: {
     // flex: 1,
-    width: '100%',
+    width: 200,
     height: '100%',
     paddingVertical: 17,
     position: 'absolute',
@@ -213,21 +201,6 @@ const styles = StyleSheet.create({
     borderLeftWidth: 0,
     borderRightWidth: 0,
   },
-  handle: {
-    position: 'absolute',
-    width: HANDLE_WIDTHS,
-    height: 106,
-    backgroundColor: TINT_COLOR,
-    top: 17,
-  },
-  leftHandle: {
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-  },
-  rightHandle: {
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-  },
   selection: {
     opacity: 0.2,
     backgroundColor: TINT_COLOR,
@@ -235,7 +208,6 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   markersContainer: {
-    paddingHorizontal: (screenWidth - TRIMMER_WIDTH) / 2,
     flexDirection: 'row',
     // width: '100%',
     height: '100%',
@@ -250,30 +222,5 @@ const styles = StyleSheet.create({
   },
   specialMarker: {
     height: 12,
-  },
-  hiddenMarker: {
-    opacity: 0
-  },
-  scrubberContainer: {
-    zIndex: 1,
-    position: 'absolute',
-    width: 14,
-    height: "100%",
-    // justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrubberHead: {
-    position: 'absolute',
-    backgroundColor: SCRUBBER_COLOR,
-    width: 14,
-    height: 14,
-    borderRadius: 14,
-  },
-  scrubberTail: {
-    backgroundColor: SCRUBBER_COLOR,
-    height: 123,
-    width: 3,
-    borderBottomLeftRadius: 3,
-    borderBottomRightRadius: 3,
   },
 });
