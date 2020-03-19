@@ -14,9 +14,9 @@ import MinimalTrimmer from './MinimalTrimmer'
 
 const maxTrimDuration = 60000;
 const minimumTrimDuration = 5000;
-const totalDuration = 1200000;
+const totalDuration = 120000;
 
-const trimmerLength = 60000
+const trimmerLength = 10000
 
 const initialLeftHandlePosition = 0;
 const initialRightHandlePosition = 36000;

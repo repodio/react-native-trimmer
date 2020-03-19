@@ -63,21 +63,19 @@ export default class Trimmer extends React.Component {
   }
 
   determineMarginLength = () => {
-    const { trimmerLength = TRIMMER_LENGTH, totalDuration, trimmerWidth = TRIMMER_WIDTH } = this.props;
-    const markerCount = (totalDuration / MARKER_INCREMENT) | 0;
-    console.log('markerCount', markerCount);
-    console.log('markerCount', markerCount);
+    const {
+      trimmerLength = TRIMMER_LENGTH,
+      totalDuration,
+      trimmerWidth = TRIMMER_WIDTH,
+      markerIncrement = MARKER_INCREMENT,
+    } = this.props;
+
+    const markerCount = (totalDuration / markerIncrement) | 0;
     const trimmerLengthInSeconds = trimmerLength / 1000
+    const contentWidth = (markerCount / trimmerLengthInSeconds) * (markerIncrement / 1000)
+    console.log('contentWidth', contentWidth)
+    const markerMargin = ((((contentWidth) * screenWidth) - (screenWidth - trimmerWidth)) / markerCount) - MARKER_LENGTH
 
-    console.log('markerCount / trimmerLengthInSeconds', markerCount / trimmerLengthInSeconds);
-    console.log('(markerCount / trimmerLengthInSeconds) * screenWidth)', (markerCount / trimmerLengthInSeconds) * screenWidth);
-    console.log('(screenWidth - trimmerWidth)', (screenWidth - trimmerWidth));
-    console.log('(((markerCount / trimmerLengthInSeconds) * screenWidth) - (screenWidth - trimmerWidth)) / markerCount)', (((markerCount / trimmerLengthInSeconds) * screenWidth) - (screenWidth - trimmerWidth)) / markerCount);
-
-    const markerMargin = ((((markerCount / trimmerLengthInSeconds) * screenWidth) - (screenWidth - trimmerWidth)) / markerCount) - MARKER_LENGTH
-    
-    
-    
     return markerMargin
   }
 
