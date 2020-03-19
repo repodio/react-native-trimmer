@@ -297,7 +297,6 @@ class Example extends Component {
 
       const newStartingPosition = value * (totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)
       const newScrollPosition = (newStartingPosition / totalDuration) * this.trimmerRef.state.contentWidth
-      console.log('newScrollPosition', newStartingPosition)
 
       this.trimmerRef.scrollViewRef.scrollTo({x: newScrollPosition, y: 0, animated: false})
       this.setState({ startPositionLabel: newStartingPosition })
@@ -306,8 +305,6 @@ class Example extends Component {
   }
 
   onTrimmerValueChanged = value => {
-    console.log('onTrimmerValueChanged', value)
-
     this.setState({ startPosition: value })
   }
 
@@ -322,7 +319,6 @@ class Example extends Component {
       const { totalDuration, trimmerLengthOptionIndex } = this.state;
 
       const newStartingPosition = value * (totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)
-      console.log('onSlidingComplete newScrollPosition', newStartingPosition)
 
       // this.trimmerRef.scrollViewRef.scrollTo({x: newScrollPosition, y: 0, animated: false})
       this.setState({ startPosition: newStartingPosition })

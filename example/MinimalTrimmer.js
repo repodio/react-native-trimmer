@@ -38,6 +38,8 @@ const TINT_COLOR = '#93b5b3';
 const SCRUBBER_COLOR = '#63707e'
 
 export default class Trimmer extends React.Component {
+  scrollX = new Animated.Value(0);
+  
 
   state = {
     markerMargin: 0,
@@ -46,6 +48,8 @@ export default class Trimmer extends React.Component {
 
   componentDidMount() {
     this.determineMarginLength()
+    this.scrollX = new Animated.Value(0);
+    this.scrollX.addListener(({value}) => { console.log('value', value) });
   }
 
   componentDidUpdate(prevProps) {
@@ -66,7 +70,7 @@ export default class Trimmer extends React.Component {
     if(scrubbing) {
       return;
     }
-    console.log('scrolling')
+
     const newStartingTime = (contentOffset.x / contentSize.width) * totalDuration
     onStartValueChanged && onStartValueChanged(newStartingTime)
   }
@@ -112,11 +116,13 @@ export default class Trimmer extends React.Component {
       showScrollIndicator = SHOW_SCROLL_INDICATOR,
       trimmerLength,
       trimmerWidth = TRIMMER_WIDTH,
-      width
+      width,
+      markerIncrement = MARKER_INCREMENT
     } = this.props;
 
     const {
-      markerMargin
+      markerMargin,
+      contentWidth
     } = this.state;
 
     // if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
@@ -132,8 +138,13 @@ export default class Trimmer extends React.Component {
         { width: '100%', backgroundColor: trackBackgroundColor, borderColor: trackBorderColor
       }];
         
+    const markerCount = (totalDuration / markerIncrement) | 0;
+    const markers = new Array(markerCount).fill(0) || [];
 
-    const markers = new Array((totalDuration / MARKER_INCREMENT) | 0).fill(0) || [];
+    // bgMarkerColor = this.scrollX.interpolate({
+    //   inputRange: [0, 10000],
+    //   outputRange: ['rgba(0,0,0,1)', 'rgba(255,0,0,1)']
+    // })
 
     return (
       <View style={[styles.root, { width }]} onLayout={this.onLayout}>
@@ -155,7 +166,10 @@ export default class Trimmer extends React.Component {
             { transform: [{ scaleX: 1.0 }] },
           ]} 
           horizontal
-          onScroll={this.onScroll}
+          onScroll={Animated.event(
+            [{nativeEvent: {contentOffset: {x: this.scrollX}}}],
+            {listener: this.onScroll}, // Optional async listener
+          )}
           scrollEventThrottle={1}
           bounces={false}
           showsHorizontalScrollIndicator={showScrollIndicator}
@@ -171,7 +185,11 @@ export default class Trimmer extends React.Component {
                     style={[
                       styles.marker,
                       i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
-                      { backgroundColor: markerColor, marginRight: markerMargin }
+                      
+                      { backgroundColor: markerColor, marginRight: markerMargin },
+                      i * (contentWidth / markerCount) >= this.scrollX._value && i * (contentWidth / markerCount) <= this.scrollX._value + TRIMMER_WIDTH
+                        ? { backgroundColor: tintColor, transform: [{scaleY: 1.5}] }
+                        : { backgroundColor: markerColor }
                     ]}/>
                 ))
               }
