@@ -118,9 +118,11 @@ export default class App extends Component {
   render() {
     return (
       <View style={styles.root}>
-        <Example totalDuration={120000}/>
+        <Example totalDuration={120000} trimmerLengthOptionIndex={11}/>
         <View style={{ height: 1, width: '100%', backgroundColor: '#AAA' }}/>
-        <Example totalDuration={1200000}/>
+        <Example totalDuration={1200000} trimmerLengthOptionIndex={5}/>
+        <View style={{ height: 1, width: '100%', backgroundColor: '#AAA' }}/>
+        <Example totalDuration={12000000} trimmerLengthOptionIndex={3}/>
       </View>
     )
   }
@@ -265,7 +267,7 @@ class Example extends Component {
       playing: false,
       startPosition: 0,
       totalDuration: props.totalDuration,
-      trimmerLengthOptionIndex: 5,
+      trimmerLengthOptionIndex: props.trimmerLengthOptionIndex,
     }
   }
 

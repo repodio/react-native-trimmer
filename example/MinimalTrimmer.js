@@ -49,7 +49,6 @@ export default class Trimmer extends React.Component {
   componentDidMount() {
     this.determineMarginLength()
     this.scrollX = new Animated.Value(0);
-    this.scrollX.addListener(({value}) => { console.log('value', value) });
   }
 
   componentDidUpdate(prevProps) {
@@ -95,6 +94,8 @@ export default class Trimmer extends React.Component {
       contentWidth,
     })
     console.log('contentWidth: ', contentWidth)
+    console.log('width: ', width)
+    console.log('trimmerWidth: ', trimmerWidth)
     return markerMargin
   }
 
@@ -146,6 +147,10 @@ export default class Trimmer extends React.Component {
     //   outputRange: ['rgba(0,0,0,1)', 'rgba(255,0,0,1)']
     // })
 
+    const adjustedScrollValue = (this.scrollX._value / (contentWidth - (width - trimmerWidth))) * contentWidth
+
+    console.log('sX, sX+ tW, asX', this.scrollX._value, this.scrollX._value + trimmerWidth, adjustedScrollValue )
+
     return (
       <View style={[styles.root, { width }]} onLayout={this.onLayout}>
         <View style={styles.trimmerContainer} pointerEvents="none">
@@ -187,7 +192,7 @@ export default class Trimmer extends React.Component {
                       i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
                       
                       { backgroundColor: markerColor, marginRight: markerMargin },
-                      i * (contentWidth / markerCount) >= this.scrollX._value && i * (contentWidth / markerCount) <= this.scrollX._value + TRIMMER_WIDTH
+                      i * (contentWidth / markerCount) >= adjustedScrollValue && i * (contentWidth / markerCount) <= adjustedScrollValue + trimmerWidth
                         ? { backgroundColor: tintColor, transform: [{scaleY: 1.5}] }
                         : { backgroundColor: markerColor }
                     ]}/>
