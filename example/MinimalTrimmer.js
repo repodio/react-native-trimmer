@@ -4,6 +4,7 @@ import {
   ScrollView,
   View,
   Animated,
+  Easing,
 } from 'react-native';
 
 const SHOW_SCROLL_INDICATOR = true
@@ -85,6 +86,8 @@ export default class Trimmer extends React.Component {
       Animated.timing(this.trackProgress, {
         toValue: 1,
         duration: trimmerLength,
+        easing: Easing.linear,
+        // useNativeDriver: true
       })
     ).start();
   }
@@ -106,7 +109,7 @@ export default class Trimmer extends React.Component {
       width,
       markerIncrement = MARKER_INCREMENT,
       onScrollBeginDrag,
-      onScrollEndDrag,
+      onMomentumScrollEnd,
     } = this.props;
 
     const {
@@ -143,14 +146,14 @@ export default class Trimmer extends React.Component {
         
         <ScrollView 
           ref={ref => this.scrollViewRef = ref}
-          scrollEnabled={true}
+          // scrollEnabled={true}
           style={[
             styles.horizontalScrollView,
             { transform: [{ scaleX: 1.0 }] },
           ]} 
           horizontal
           onScrollBeginDrag={onScrollBeginDrag}
-          onScrollEndDrag={onScrollEndDrag}
+          onMomentumScrollEnd={onMomentumScrollEnd}
           onScroll={Animated.event(
             [{nativeEvent: {contentOffset: {x: this.scrollX}}}],
             {listener: this.onScroll}, // Optional async listener
@@ -190,10 +193,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    borderWidth: 1,
+    borderColor: 'red'
   },
   horizontalScrollView: {
     height: 80,
-    overflow: 'hidden',
+    // overflow: 'hidden',
     position: 'relative',
   },
   trackBackground: {
