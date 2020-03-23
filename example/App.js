@@ -118,7 +118,7 @@ export default class App extends Component {
   render() {
     return (
       <View style={styles.root}>
-        <Example totalDuration={120000} trimmerLengthOptionIndex={11}/>
+        <Example totalDuration={120000} trimmerLengthOptionIndex={0}/>
         {/* <View style={{ height: 1, width: '100%', backgroundColor: '#AAA' }}/>
         <Example totalDuration={1200000} trimmerLengthOptionIndex={5}/>
         <View style={{ height: 1, width: '100%', backgroundColor: '#AAA' }}/>
@@ -126,136 +126,6 @@ export default class App extends Component {
       </View>
     )
   }
-  // state = {
-  //   playing: false,
-  //   trimmerLeftHandlePosition: initialLeftHandlePosition,
-  //   trimmerRightHandlePosition: initialRightHandlePosition,
-  //   scrubberPosition: 1000,
-  //   startPosition: 0,
-  // }
-  
-  // playScrubber = () => {
-  //   this.setState({ playling: true });
-
-  //   this.scrubberInterval = setInterval(() => {
-  //     this.setState({ scrubberPosition: this.state.scrubberPosition + scrubInterval })
-  //   }, scrubInterval)
-  // }
-
-  // pauseScrubber = () => {
-  //   clearInterval(this.scrubberInterval)
-
-  //   this.setState({ playling: false, scrubberPosition: this.state.trimmerLeftHandlePosition });
-  // }
-
-  // onHandleChange = ({ leftPosition, rightPosition }) => {
-  //   this.setState({
-  //     trimmerRightHandlePosition: rightPosition,
-  //     trimmerLeftHandlePosition: leftPosition
-  //   })
-  // }
-
-  // onScrubbingComplete = (newValue) => {
-  //   this.setState({ playing: false, scrubberPosition: newValue })
-  // }
-
-  // trimmerProps = () => {
-  //   const {
-  //     trimmerLeftHandlePosition,
-  //     trimmerRightHandlePosition,
-  //     scrubberPosition,
-  //     playling,
-  //   } = this.state;
-
-  //   return {
-  //     onHandleChange: this.onHandleChange,
-  //     totalDuration: totalDuration,
-  //     trimmerLeftHandlePosition: trimmerLeftHandlePosition,
-  //     trimmerRightHandlePosition: trimmerRightHandlePosition,
-  //     minimumTrimDuration: minimumTrimDuration,
-  //     maxTrimDuration: maxTrimDuration,
-  //     maximumZoomLevel: 200,
-  //     zoomMultiplier: 20,
-  //     initialZoomValue: 2,
-  //     scaleInOnInit: true,
-  //     tintColor: "#f638dc",
-  //     markerColor: "#5a3d5c",
-  //     trackBackgroundColor: "#382039",
-  //     trackBorderColor: "#5a3d5c",
-  //     scrubberColor: "#b7e778",
-  //     scrubberPosition: scrubberPosition,
-  //     onScrubbingComplete: this.onScrubbingComplete,
-  //     onLeftHandlePressIn: () => console.log('onLeftHandlePressIn'),
-  //     onRightHandlePressIn: () => console.log('onRightHandlePressIn'),
-  //     onScrubberPressIn: () => console.log('onScrubberPressIn'),
-  //   }
-  // }
-
-
-  // onStartValueChanged = (val) => {
-  //   this.setState({ startPosition: val })
-  // }
-
-  // trimmerProps2 = () => {
-  //   const {
-  //     trimmerLeftHandlePosition,
-  //     trimmerRightHandlePosition,
-  //     scrubberPosition,
-  //     playling,
-  //   } = this.state;
-
-  //   return {
-  //     totalDuration: totalDuration,
-  //     tintColor: "#40E1A9",
-  //     markerColor: "#EDEFF3",
-  //     trackBackgroundColor: "#FFF",
-  //     trackBorderColor: "#5a3d5c",
-  //     onStartValueChanged: this.onStartValueChanged,
-  //     trimmerLength,
-  //   }
-  // }
-
-  // render() {
-  //   const {
-  //     trimmerLeftHandlePosition,
-  //     trimmerRightHandlePosition,
-  //     scrubberPosition,
-  //     playling,
-  //     startPosition,
-  //   } = this.state;
-    
-  //   return (
-  //     <KeyboardAvoidingView
-  //       style={{ flex: 1 }}
-  //       behavior={Platform.select( {ios: "position", android: "height"})}
-  //       keyboardVerticalOffset={Platform.select( {ios: -100, android: 0})}
-  //     >
-  //       <ScrollView
-  //         scrollEnabled={false}
-  //         style={{height: '100%'}}
-  //         keyboardDismissMode={Platform === 'ios' ? "interactive" : 'on-drag'}
-  //       >
-  //         <View>
-  //           <View style={{ width: '100%', height: 250, backgroundColor: '#f638dc', padding: 20 }}/>
-  //           {
-  //             playling
-  //               ? <Button title="Pause" color="#f638dc" onPress={this.pauseScrubber}/>
-  //               : <Button title="Play" color="#f638dc" onPress={this.playScrubber}/>
-  //           }
-  //           <Text>Total Time: {formatMilliseconds(totalDuration)}</Text>
-  //           <Text>Start Time: {formatMilliseconds(startPosition)}</Text>
-  //           <MinimalTrimmer {...this.trimmerRefProps2()}/>
-  //           <ScrollView style={{ width: '100%', height: '100%', backgroundColor: 'blue' }}>
-  //             <View style={{ width: '100%', height: 100, backgroundColor: '#f638dc', padding: 20 }}/>
-  //             <View style={{ width: '100%', borderWidth: 2, borderColor: '#f638dc', padding: 20 }}>
-  //               <TextInput />
-  //             </View>
-  //           </ScrollView>
-  //         </View>
-  //       </ScrollView>
-  //     </KeyboardAvoidingView>
-  //   );
-  // }
 }
 
 class Example extends Component {
@@ -272,17 +142,13 @@ class Example extends Component {
   }
 
   togglePlayButton = () => {
-    const { playing, startPosition } = this.state;
+    const { playing } = this.state;
 
     if(playing) {
-      clearInterval(this.valueChangeInterval);
+      this.trimmerRef.stopTrackProgressAnimation();
       this.setState({ playing: false });
     } else {
-      this.valueChangeInterval = setInterval(() => {
-        this.setState({ 
-          startPosition: startPosition + 1000,
-        })
-      }, 1000);
+      this.trimmerRef.startTrackProgressAnimation()
       this.setState({ playing: true });
     }
   }
@@ -301,8 +167,7 @@ class Example extends Component {
       const newScrollPosition = (newStartingPosition / totalDuration) * this.trimmerRef.state.contentWidth
 
       this.trimmerRef.scrollViewRef.scrollTo({x: newScrollPosition, y: 0, animated: false})
-      this.setState({ startPositionLabel: newStartingPosition })
-
+      this.setState({ startPositionLabel: newStartingPosition });
     }
   }
 
@@ -317,7 +182,7 @@ class Example extends Component {
   onSlidingComplete = value => {
     this.setState({ scrubbing: false })
     
-    if( this.trimmerRef && this.trimmerRef.scrollViewRef)  {
+    if( this.trimmerRef && this.trimmerRef.scrollViewRef )  {
       const { totalDuration, trimmerLengthOptionIndex } = this.state;
 
       const newStartingPosition = value * (totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)

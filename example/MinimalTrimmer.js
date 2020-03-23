@@ -39,6 +39,7 @@ const SCRUBBER_COLOR = '#63707e'
 
 export default class Trimmer extends React.Component {
   scrollX = new Animated.Value(0);
+  trackProgress = new Animated.Value(0);
   
 
   state = {
@@ -49,7 +50,10 @@ export default class Trimmer extends React.Component {
   componentDidMount() {
     this.determineMarginLength()
     this.scrollX = new Animated.Value(0);
+    this.trackProgress = new Animated.Value(0);
   }
+
+
 
   componentDidUpdate(prevProps) {
 
@@ -106,6 +110,24 @@ export default class Trimmer extends React.Component {
   //   console.log('width', nativeEvent.layout.width);
   // }
 
+  startTrackProgressAnimation = () => {
+    const { trimmerLength } = this.props;
+
+    this.trackProgress.setValue(0);
+    
+    Animated.loop(
+      Animated.timing(this.trackProgress, {
+        toValue: 1,
+        duration: trimmerLength,
+      })
+    ).start();
+  }
+
+  stopTrackProgressAnimation = () => {
+    Animated.timing(this.trackProgress).stop();
+    this.trackProgress.setValue(0);
+  }
+
   render() {
     const {
       totalDuration,
@@ -118,7 +140,7 @@ export default class Trimmer extends React.Component {
       trimmerLength,
       trimmerWidth = TRIMMER_WIDTH,
       width,
-      markerIncrement = MARKER_INCREMENT
+      markerIncrement = MARKER_INCREMENT,
     } = this.props;
 
     const {
@@ -142,10 +164,10 @@ export default class Trimmer extends React.Component {
     const markerCount = (totalDuration / markerIncrement) | 0;
     const markers = new Array(markerCount).fill(0) || [];
 
-    // bgMarkerColor = this.scrollX.interpolate({
-    //   inputRange: [0, 10000],
-    //   outputRange: ['rgba(0,0,0,1)', 'rgba(255,0,0,1)']
-    // })
+    const trackProgressWidth = this.trackProgress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, TRIMMER_WIDTH - 6]
+    })
 
     const adjustedScrollValue = ((this.scrollX._value / (contentWidth - trimmerWidth)) * (contentWidth - trimmerWidth))
     
@@ -157,7 +179,7 @@ export default class Trimmer extends React.Component {
             { width: TRIMMER_WIDTH },
             { borderColor: tintColor }
           ]} >
-            <View style={[styles.selection, { backgroundColor: tintColor }]}/>
+            <Animated.View style={[styles.selection, { backgroundColor: tintColor, width: trackProgressWidth }]}/>
           </View>
         </View>
         
@@ -249,7 +271,7 @@ const styles = StyleSheet.create({
   selection: {
     opacity: 0.2,
     backgroundColor: TINT_COLOR,
-    width: '100%',
+    width: 0,
     height: '100%',
   },
   markersContainer: {
