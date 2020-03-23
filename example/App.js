@@ -179,7 +179,9 @@ class Example extends Component {
   changeTrimmerLength = () => {
     this.trimmerRef.stopTrackProgressAnimation();
     this.setState({ trimmerLengthOptionIndex: (this.state.trimmerLengthOptionIndex + 1) % TRIMMER_LENGTHS.length }, () => {
-      this.trimmerRef.startTrackProgressAnimation();
+      if(this.state.playing) {
+        this.trimmerRef.startTrackProgressAnimation();
+      }
     })
   }
 
