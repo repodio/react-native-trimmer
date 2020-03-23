@@ -141,6 +141,8 @@ export default class Trimmer extends React.Component {
       trimmerWidth = TRIMMER_WIDTH,
       width,
       markerIncrement = MARKER_INCREMENT,
+      onScrollBeginDrag,
+      onScrollEndDrag,
     } = this.props;
 
     const {
@@ -191,6 +193,8 @@ export default class Trimmer extends React.Component {
             { transform: [{ scaleX: 1.0 }] },
           ]} 
           horizontal
+          onScrollBeginDrag={onScrollBeginDrag}
+          onScrollEndDrag={onScrollEndDrag}
           onScroll={Animated.event(
             [{nativeEvent: {contentOffset: {x: this.scrollX}}}],
             {listener: this.onScroll}, // Optional async listener

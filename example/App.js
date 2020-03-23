@@ -169,6 +169,7 @@ class Example extends Component {
       this.trimmerRef.scrollViewRef.scrollTo({x: newScrollPosition, y: 0, animated: false})
       this.setState({ startPositionLabel: newStartingPosition });
     }
+    this.trimmerRef.stopTrackProgressAnimation();
   }
 
   onTrimmerValueChanged = value => {
@@ -189,7 +190,19 @@ class Example extends Component {
 
       // this.trimmerRef.scrollViewRef.scrollTo({x: newScrollPosition, y: 0, animated: false})
       this.setState({ startPosition: newStartingPosition })
+    }
+    if(this.state.playing) {
+      this.trimmerRef.startTrackProgressAnimation();
+    }
+  }
 
+  onScrollBeginDrag = () => {
+    this.trimmerRef.stopTrackProgressAnimation();
+  }
+
+  onScrollEndDrag = () => {
+    if(this.state.playing) {
+      this.trimmerRef.startTrackProgressAnimation();
     }
   }
 
@@ -251,6 +264,8 @@ class Example extends Component {
           trackBorderColor={"#5a3d5c"}
           onStartValueChanged={this.onTrimmerValueChanged}
           trimmerLength={TRIMMER_LENGTHS[trimmerLengthOptionIndex].value}
+          onScrollBeginDrag={this.onScrollBeginDrag}
+          onScrollEndDrag={this.onScrollEndDrag}
         />
       </View>
     )
