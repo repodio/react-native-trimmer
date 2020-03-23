@@ -229,6 +229,9 @@ class Example extends Component {
           <View style={{ flex: 1 }}>
             <Slider
               thumbImage={require("./assets/thumb-image.png")}
+              thumbTintColor="#222B45"
+              hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+
               minimumValue={0}
               minimumTrackTintColor="#40E1A9"
               maximumTrackTintColor="#B3BED3"
@@ -239,8 +242,11 @@ class Example extends Component {
               value={startPosition / (totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)}
             />
             <View style={styles.timesContainer}>
-              <Text style={styles.timesLabel}>{scrubbing ? formatMilliseconds(startPositionLabel) : formatMilliseconds(startPosition)}</Text>
-              <Text style={styles.timesLabel}>{scrubbing ? formatMilliseconds(startPositionLabel + TRIMMER_LENGTHS[trimmerLengthOptionIndex].value) : formatMilliseconds(startPosition + TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)}</Text>
+              <View style={styles.timesInnerContainer}>
+                <Text style={styles.timesLabel}>{scrubbing ? formatMilliseconds(startPositionLabel) : formatMilliseconds(startPosition)}</Text>
+                <Text style={styles.timesLabel}>-</Text>
+                <Text style={styles.timesLabel}>{scrubbing ? formatMilliseconds(startPositionLabel + TRIMMER_LENGTHS[trimmerLengthOptionIndex].value) : formatMilliseconds(startPosition + TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)}</Text>
+              </View>
             </View>
           </View>
           <View style={{ flex: 0 }}>
@@ -309,6 +315,11 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   timesContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timesInnerContainer: {
+    width: 150,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
