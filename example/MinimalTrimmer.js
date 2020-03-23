@@ -2,30 +2,15 @@ import React from 'react';
 import {
   StyleSheet,
   ScrollView,
-  Text,
   View,
-  Dimensions,
-  PanResponder,
   Animated,
-  TouchableHighlight,
 } from 'react-native';
 
-const { width: screenWidth } = Dimensions.get('window');
-
 const SHOW_SCROLL_INDICATOR = true
-const CENTER_ON_LAYOUT = true
 
-const TRACK_PADDING_OFFSET = 10;
-const HANDLE_WIDTHS = 30;
 
 const MARKER_INCREMENT = 1000;
 const SPECIAL_MARKER_INCREMEMNT = 2;
-
-
-// const MARKER_MARGIN = 1.792; // 60 seconds
-// const MARKER_MARGIN = 8.042; // 30 seconds
-const MARKER_MARGIN = 70.542; // 5 seconds
-
 
 const TRIMMER_WIDTH = 150;
 const TRIMMER_LENGTH = 5000;
@@ -35,7 +20,6 @@ const TRACK_BACKGROUND_COLOR = '#FFF';
 const TRACK_BORDER_COLOR = '#c8dad3';
 const MARKER_COLOR = '#EDEFF3';
 const TINT_COLOR = '#93b5b3';
-const SCRUBBER_COLOR = '#63707e'
 
 export default class Trimmer extends React.Component {
   scrollX = new Animated.Value(0);
@@ -117,9 +101,7 @@ export default class Trimmer extends React.Component {
       trackBorderColor = TRACK_BORDER_COLOR,
       markerColor = MARKER_COLOR,
       tintColor = TINT_COLOR,
-      centerOnLayout = CENTER_ON_LAYOUT,
       showScrollIndicator = SHOW_SCROLL_INDICATOR,
-      trimmerLength,
       trimmerWidth = TRIMMER_WIDTH,
       width,
       markerIncrement = MARKER_INCREMENT,
@@ -136,7 +118,7 @@ export default class Trimmer extends React.Component {
       styles.trackBackground,
         { width: '100%', backgroundColor: trackBackgroundColor, borderColor: trackBorderColor
       }];
-        
+
     const markerCount = (totalDuration / markerIncrement) | 0;
     const markers = new Array(markerCount).fill(0) || [];
 
