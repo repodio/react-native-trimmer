@@ -253,7 +253,8 @@ class Example extends Component {
           showScrollIndicator={false}
           width={screenWidth - 24}
           totalDuration={totalDuration}
-          tintColor={"#40E1A9"}
+          tintColor={"#222B45"}
+          trackProgressColor="#40E1A9"
           markerColor={"#EDEFF3"}
           trackBackgroundColor={"#FFF"}
           trackBorderColor={"#5a3d5c"}

@@ -16,11 +16,13 @@ const SPECIAL_MARKER_INCREMEMNT = 2;
 const TRIMMER_WIDTH = 150;
 const TRIMMER_LENGTH = 5000;
 const MARKER_WIDTH = 3;
+const TRACK_BORDER_RADIUS = 10;
 
 const TRACK_BACKGROUND_COLOR = '#FFF';
 const TRACK_BORDER_COLOR = '#c8dad3';
 const MARKER_COLOR = '#EDEFF3';
 const TINT_COLOR = '#93b5b3';
+const TRACK_PROGRESS_COLOR = '#93b5b3';
 
 export default class Trimmer extends React.Component {
   scrollX = new Animated.Value(0);
@@ -104,6 +106,7 @@ export default class Trimmer extends React.Component {
       trackBorderColor = TRACK_BORDER_COLOR,
       markerColor = MARKER_COLOR,
       tintColor = TINT_COLOR,
+      trackProgressColor = TRACK_PROGRESS_COLOR,
       showScrollIndicator = SHOW_SCROLL_INDICATOR,
       trimmerWidth = TRIMMER_WIDTH,
       width,
@@ -180,7 +183,7 @@ export default class Trimmer extends React.Component {
             { width: TRIMMER_WIDTH },
             { borderColor: tintColor }
           ]} >
-            <Animated.View style={[styles.selection, { backgroundColor: tintColor, width: trackProgressWidth }]}/>
+            <Animated.View style={[styles.selection, { backgroundColor: trackProgressColor, width: trackProgressWidth }]}/>
           </View>
         </View>
       </View>
@@ -220,11 +223,15 @@ const styles = StyleSheet.create({
   trimmer: {
     borderColor: TINT_COLOR,
     borderWidth: 3,
-    borderRadius: 3,
+    borderRadius: TRACK_BORDER_RADIUS,
   },
   selection: {
-    opacity: 0.2,
-    backgroundColor: TINT_COLOR,
+    opacity: 0.5,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+    borderTopLeftRadius: TRACK_BORDER_RADIUS - 3,
+    borderBottomLeftRadius: TRACK_BORDER_RADIUS - 3,
+    backgroundColor: TRACK_PROGRESS_COLOR,
     width: 0,
     height: '100%',
   },
