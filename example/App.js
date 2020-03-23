@@ -188,7 +188,6 @@ class Example extends Component {
 
       const newStartingPosition = value * (totalDuration - TRIMMER_LENGTHS[trimmerLengthOptionIndex].value)
 
-      // this.trimmerRef.scrollViewRef.scrollTo({x: newScrollPosition, y: 0, animated: false})
       this.setState({ startPosition: newStartingPosition })
     }
     if(this.state.playing) {
@@ -218,21 +217,12 @@ class Example extends Component {
 
     return (
       <View style={styles.exampleRoot}>
-        {/* <Scrubber 
-          value={startPosition / 1000}
-          onSlidingComplete={this.onSliderValueChanged}
-          totalDuration={totalDuration / 1000}
-          trackColor='#666'
-          scrubbedColor='#40E1A9'
-        /> */}
-        
         <View style={styles.sliderContainer}>
           <View style={{ flex: 0 }}>
             <TrimmerLengthButton onPress={this.changeTrimmerLength} trimmerLengthOption={TRIMMER_LENGTHS[trimmerLengthOptionIndex]}/>
           </View>
           <View style={{ flex: 1 }}>
             <Slider
-              // style={styles.containerSlide}
               thumbImage={require("./assets/thumb-image.png")}
               minimumValue={0}
               minimumTrackTintColor="#40E1A9"

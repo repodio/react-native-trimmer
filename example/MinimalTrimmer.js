@@ -53,19 +53,10 @@ export default class Trimmer extends React.Component {
     this.trackProgress = new Animated.Value(0);
   }
 
-
-
   componentDidUpdate(prevProps) {
-
     if(this.props.trimmerLength !== prevProps.trimmerLength) {
       this.determineMarginLength()
     }
-
-    // const newPosition = (this.props.value / this.props.totalDuration) * this.state.contentWidth
-
-    // // Typical usage (don't forget to compare props):
-    // console.log('componentDidUpdate', this.props.value, this.state.contentWidth)
-    // this.scrollViewRef.scrollTo({x: newPosition, y: 0, animated: false})
   }
 
   onScroll = ({ nativeEvent: { contentOffset, contentSize }}) => {
@@ -97,18 +88,9 @@ export default class Trimmer extends React.Component {
       markerMargin,
       contentWidth,
     })
-    console.log('contentWidth: ', contentWidth)
-    console.log('width: ', width)
-    console.log('trimmerWidth: ', trimmerWidth)
+    
     return markerMargin
   }
-
-  // onLayout = ({ nativeEvent }) => {
-
-  //   if (this.state.viewportWidth) return // layout was already called
-  //   this.setState({viewportWidth: nativeEvent.layout.width})
-  //   console.log('width', nativeEvent.layout.width);
-  // }
 
   startTrackProgressAnimation = () => {
     const { trimmerLength } = this.props;
@@ -150,16 +132,8 @@ export default class Trimmer extends React.Component {
       contentWidth
     } = this.state;
 
-    // if(maxTrimDuration < trimmerRightHandlePosition - trimmerLeftHandlePosition) {
-    //   console.error('maxTrimDuration is less than trimRightHandlePosition minus trimmerLeftHandlePosition', {
-    //     minimumTrimDuration, trimmerRightHandlePosition, trimmerLeftHandlePosition
-    //   })
-    //   return null
-    // }
-
     const trackBackgroundStyles = [
       styles.trackBackground,
-      // { width: trackWidth, backgroundColor: trackBackgroundColor, borderColor: trackBorderColor
         { width: '100%', backgroundColor: trackBackgroundColor, borderColor: trackBorderColor
       }];
         
@@ -202,8 +176,6 @@ export default class Trimmer extends React.Component {
           scrollEventThrottle={1}
           bounces={false}
           showsHorizontalScrollIndicator={showScrollIndicator}
-          // {...{...this.trackPanResponder.panHandlers, ...onLayoutHandler}}
-          // {...this.trackPanResponder.panHandlers}
         >
           <View style={trackBackgroundStyles}>
             <View style={[styles.markersContainer, { paddingHorizontal: (width - trimmerWidth) / 2 }]}>
@@ -247,10 +219,8 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     backgroundColor: TRACK_BACKGROUND_COLOR,
     height: 45,
-    // marginHorizontal: HANDLE_WIDTHS + TRACK_PADDING_OFFSET,
   },
   trimmerContainer: {
-    // flex: 1,
     width: 200,
     height: '100%',
     paddingVertical: 15,
@@ -260,17 +230,9 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   trimmer: {
-    // marginVertical: 17,
-    // position: 'absolute',
-    // left: TRACK_PADDING_OFFSET,
-    // top: 17,
-    // bottom: 17,
-    // left: 0,
-    // right: 0,
     borderColor: TINT_COLOR,
     borderWidth: 3,
     borderRadius: 3,
-    // height: 106,
   },
   selection: {
     opacity: 0.2,
@@ -280,7 +242,6 @@ const styles = StyleSheet.create({
   },
   markersContainer: {
     flexDirection: 'row',
-    // width: '100%',
     height: '100%',
     justifyContent: 'space-between',
     alignItems: 'center',
