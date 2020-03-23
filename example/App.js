@@ -274,16 +274,12 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'green'
   },
   exampleRoot: {
     width: '100%',
     padding: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'blue'
   },
   trimmerButtonRoot: {
     marginLeft: 12,

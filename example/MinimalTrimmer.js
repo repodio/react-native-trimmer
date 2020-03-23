@@ -134,16 +134,6 @@ export default class Trimmer extends React.Component {
     
     return (
       <View style={[styles.root, { width }]} onLayout={this.onLayout}>
-        <View style={styles.trimmerContainer} pointerEvents="none">
-          <View style={[
-            styles.trimmer,
-            { width: TRIMMER_WIDTH },
-            { borderColor: tintColor }
-          ]} >
-            <Animated.View style={[styles.selection, { backgroundColor: tintColor, width: trackProgressWidth }]}/>
-          </View>
-        </View>
-        
         <ScrollView 
           ref={ref => this.scrollViewRef = ref}
           // scrollEnabled={true}
@@ -165,22 +155,34 @@ export default class Trimmer extends React.Component {
           <View style={trackBackgroundStyles}>
             <View style={[styles.markersContainer, { paddingHorizontal: (width - trimmerWidth) / 2 }]}>
               {
-                markers.map((m,i) => (
-                  <Animated.View 
-                    key={`marker-${i}`} 
-                    style={[
-                      styles.marker,
-                      i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
-                      { backgroundColor: markerColor, marginRight: markerMargin },
-                      ((MARKER_WIDTH + markerMargin) * i) + MARKER_WIDTH >= adjustedScrollValue && ((MARKER_WIDTH + markerMargin) * i) + MARKER_WIDTH <= adjustedScrollValue + trimmerWidth
-                        ? { backgroundColor: tintColor, transform: [{scaleY: 1.5}] }
-                        : { backgroundColor: markerColor }
-                    ]}/>
-                ))
+                markers.map((m,i) => {
+                  const position = ((MARKER_WIDTH + markerMargin) * i) + MARKER_WIDTH
+                  return (
+                    <Animated.View 
+                      key={`marker-${i}`} 
+                      style={[
+                        styles.marker,
+                        i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
+                        { backgroundColor: markerColor, marginRight: markerMargin },
+                        position >= adjustedScrollValue && position <= adjustedScrollValue + trimmerWidth
+                          ? { backgroundColor: tintColor, transform: [{scaleY: 1.5}] }
+                          : { backgroundColor: markerColor }
+                      ]}/>
+                  )
+                })
               }
             </View>
           </View>
         </ScrollView>
+        <View style={styles.trimmerContainer} pointerEvents="none">
+          <View style={[
+            styles.trimmer,
+            { width: TRIMMER_WIDTH },
+            { borderColor: tintColor }
+          ]} >
+            <Animated.View style={[styles.selection, { backgroundColor: tintColor, width: trackProgressWidth }]}/>
+          </View>
+        </View>
       </View>
     );
   }
@@ -193,10 +195,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    borderWidth: 1,
-    borderColor: 'red'
   },
   horizontalScrollView: {
+    zIndex: 1,
     height: 80,
     // overflow: 'hidden',
     position: 'relative',
