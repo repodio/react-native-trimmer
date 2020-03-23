@@ -29,7 +29,7 @@ const MARKER_MARGIN = 70.542; // 5 seconds
 
 const TRIMMER_WIDTH = 150;
 const TRIMMER_LENGTH = 5000;
-const MARKER_LENGTH = 3;
+const MARKER_WIDTH = 3;
 
 const TRACK_BACKGROUND_COLOR = '#FFF';
 const TRACK_BORDER_COLOR = '#c8dad3';
@@ -87,7 +87,7 @@ export default class Trimmer extends React.Component {
     const trimmerLengthInSeconds = trimmerLength / 1000
     const contentWidth = ((markerCount / trimmerLengthInSeconds) * (markerIncrement / 1000)) * width
 
-    const markerMargin = (((contentWidth) - (width - trimmerWidth)) / markerCount) - MARKER_LENGTH
+    const markerMargin = (((contentWidth) - (width - trimmerWidth)) / markerCount) - MARKER_WIDTH
 
     this.setState({
       markerMargin,
@@ -147,10 +147,8 @@ export default class Trimmer extends React.Component {
     //   outputRange: ['rgba(0,0,0,1)', 'rgba(255,0,0,1)']
     // })
 
-    const adjustedScrollValue = (this.scrollX._value / (contentWidth - (width - trimmerWidth))) * contentWidth
-
-    console.log('sX, sX+ tW, asX', this.scrollX._value, this.scrollX._value + trimmerWidth, adjustedScrollValue )
-
+    const adjustedScrollValue = ((this.scrollX._value / (contentWidth - trimmerWidth)) * (contentWidth - trimmerWidth))
+    
     return (
       <View style={[styles.root, { width }]} onLayout={this.onLayout}>
         <View style={styles.trimmerContainer} pointerEvents="none">
@@ -190,9 +188,8 @@ export default class Trimmer extends React.Component {
                     style={[
                       styles.marker,
                       i % SPECIAL_MARKER_INCREMEMNT ? {} : styles.specialMarker,
-                      
                       { backgroundColor: markerColor, marginRight: markerMargin },
-                      i * (contentWidth / markerCount) >= adjustedScrollValue && i * (contentWidth / markerCount) <= adjustedScrollValue + trimmerWidth
+                      ((MARKER_WIDTH + markerMargin) * i) + MARKER_WIDTH >= adjustedScrollValue && ((MARKER_WIDTH + markerMargin) * i) + MARKER_WIDTH <= adjustedScrollValue + trimmerWidth
                         ? { backgroundColor: tintColor, transform: [{scaleY: 1.5}] }
                         : { backgroundColor: markerColor }
                     ]}/>
@@ -264,7 +261,7 @@ const styles = StyleSheet.create({
   },
   marker: {
     backgroundColor: MARKER_COLOR, // marker color,
-    width: MARKER_LENGTH,
+    width: MARKER_WIDTH,
     height: 6,
     borderRadius: 3,
   },
