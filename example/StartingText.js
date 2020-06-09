@@ -34,6 +34,7 @@ export default class StartingText extends React.Component {
           }}
         >
           <TextInput
+            editable={false}
             ref={this.text}
             style={[{ paddingVertical: -25 }, textStyle]}
             text={""}

@@ -1,8 +1,17 @@
 import React from "react";
-import { StyleSheet, ScrollView, View, Easing, Text } from "react-native";
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  Easing,
+  Text,
+  Slider,
+} from "react-native";
 import Animated from "react-native-reanimated";
 
 import StartingText from "./StartingText";
+import TrimmerSlider from "./TrimmerSlider";
+import TrimmerLengthButton from "./TrimmerLengthButton";
 
 const { block, call, event } = Animated;
 
@@ -45,12 +54,12 @@ formatMilliseconds = (ms) => {
 export default class Trimmer extends React.Component {
   scrollX = new Animated.Value(0);
   trackProgress = new Animated.Value(0);
-  ballon = React.createRef();
+  animatedText = React.createRef();
+  slider = React.createRef();
 
   state = {
     markerMargin: 0,
     contentWidth: 0,
-    ballon: "",
   };
 
   componentDidMount() {
@@ -71,14 +80,22 @@ export default class Trimmer extends React.Component {
   }
 
   onScroll = (positionX) => {
-    const { scrubbing, totalDuration, onStartValueChanged } = this.props;
+    const {
+      scrubbing,
+      totalDuration,
+      onStartValueChanged,
+      trimmerLength = TRIMMER_LENGTH,
+    } = this.props;
     if (scrubbing) {
       return;
     }
     const newStartingTime =
       (positionX / this.state.contentWidth) * totalDuration;
 
-    this.ballon.current.setText(formatMilliseconds(newStartingTime));
+    const newSlidePosition = newStartingTime / (totalDuration - trimmerLength);
+
+    this.animatedText.current.setText(formatMilliseconds(newStartingTime));
+    this.slider.current.setSliderValue(newSlidePosition);
 
     // if (
     //   Math.abs(
@@ -139,7 +156,7 @@ export default class Trimmer extends React.Component {
   };
 
   _renderStartingText = () => {
-    return <StartingText ref={this.ballon} />;
+    return <StartingText ref={this.animatedText} />;
   };
 
   render() {
@@ -183,6 +200,33 @@ export default class Trimmer extends React.Component {
 
     return (
       <View style={styles.root}>
+        <View style={styles.sliderContainer}>
+          <View style={{ flex: 0 }}>
+            <TrimmerLengthButton
+              onPress={() => {}}
+              trimmerLengthOption={{
+                value: 20000,
+                key: "20s",
+              }}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <TrimmerSlider
+              ref={this.slider}
+              onSliderValueChanged={this.onSliderValueChanged}
+              onSlidingComplete={this.onSlidingComplete}
+            />
+          </View>
+          <View style={{ flex: 0 }}>
+            <TrimmerLengthButton
+              onPress={() => {}}
+              trimmerLengthOption={{
+                value: 20000,
+                key: "20s",
+              }}
+            />
+          </View>
+        </View>
         <View>{this._renderStartingText()}</View>
         <View style={[styles.trimmerRoot, { width }]} onLayout={this.onLayout}>
           <Animated.ScrollView
@@ -291,6 +335,14 @@ export default class Trimmer extends React.Component {
 const styles = StyleSheet.create({
   root: {
     width: "100%",
+  },
+  sliderContainer: {
+    // width: screenWidth,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    marginBottom: 8,
   },
   trimmerRoot: {
     height: 80,
