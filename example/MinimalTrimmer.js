@@ -13,7 +13,22 @@ import StartingText from "./StartingText";
 import TrimmerSlider from "./TrimmerSlider";
 import TrimmerLengthButton from "./TrimmerLengthButton";
 
-const { block, call, event } = Animated;
+const {
+  set,
+  block,
+  call,
+  event,
+  add,
+  multiply,
+  divide,
+  sub,
+  cond,
+  greaterOrEq,
+  lessOrEq,
+  and,
+  onChange,
+  debug,
+} = Animated;
 
 const SHOW_SCROLL_INDICATOR = true;
 
@@ -54,6 +69,9 @@ formatMilliseconds = (ms) => {
 export default class Trimmer extends React.Component {
   scrollX = new Animated.Value(0);
   trackProgress = new Animated.Value(0);
+  contentWidth = new Animated.Value(0);
+  trimmerWidth = new Animated.Value(0);
+  adjustedScrollValue = new Animated.Value(0);
   animatedText = React.createRef();
   slider = React.createRef();
 
@@ -71,6 +89,13 @@ export default class Trimmer extends React.Component {
     //   call([this.scrollX], (r) => console.log(r[0])),
     //   this.scrollX,
     // ]);
+
+    // this.scrollX.addListener((value) => {
+    //   console.log("this.adjustedScrollValue", value);
+    // });
+    // onChange(this.scrollX, (value) => {
+    //   console.log("this.scrollX", value);
+    // });
   }
 
   componentDidUpdate(prevProps) {
@@ -85,7 +110,10 @@ export default class Trimmer extends React.Component {
       totalDuration,
       onStartValueChanged,
       trimmerLength = TRIMMER_LENGTH,
+      trimmerWidth = TRIMMER_WIDTH,
     } = this.props;
+    const { contentWidth } = this.state;
+
     if (scrubbing) {
       return;
     }
@@ -131,6 +159,9 @@ export default class Trimmer extends React.Component {
       markerMargin,
       contentWidth,
     });
+
+    this.contentWidth.setValue(contentWidth);
+    this.trimmerWidth.setValue(trimmerWidth);
 
     return markerMargin;
   };
@@ -200,6 +231,26 @@ export default class Trimmer extends React.Component {
 
     return (
       <View style={styles.root}>
+        <Animated.Code>
+          {() =>
+            block([
+              set(
+                this.adjustedScrollValue,
+                multiply(
+                  divide(
+                    this.scrollX,
+                    sub(this.contentWidth, this.trimmerWidth)
+                  ),
+                  sub(this.contentWidth, this.trimmerWidth)
+                )
+              ),
+              debug("adjustedScrollValue", this.adjustedScrollValue),
+              //debug("trimmerWidth", this.trimmerWidth),
+              //debug("contentWidth", this.contentWidth),
+              //debug("scrollX", this.scrollX),
+            ])
+          }
+        </Animated.Code>
         <View style={styles.sliderContainer}>
           <View style={{ flex: 0 }}>
             <TrimmerLengthButton
@@ -244,7 +295,7 @@ export default class Trimmer extends React.Component {
                 {
                   nativeEvent: {
                     contentOffset: {
-                      x: (x, ...rest) =>
+                      x: (x) =>
                         Animated.block([
                           Animated.set(this.scrollX, x),
                           Animated.call(
@@ -282,7 +333,7 @@ export default class Trimmer extends React.Component {
                   const position =
                     (MARKER_WIDTH + markerMargin) * i + MARKER_WIDTH;
                   return (
-                    <View
+                    <Animated.View
                       key={`marker-${i}`}
                       style={[
                         styles.marker,
@@ -293,13 +344,31 @@ export default class Trimmer extends React.Component {
                           backgroundColor: markerColor,
                           marginRight: markerMargin,
                         },
-                        position >= adjustedScrollValue &&
-                        position <= adjustedScrollValue + trimmerWidth
-                          ? {
-                              backgroundColor: tintColor,
-                              transform: [{ scaleY: 1.5 }],
-                            }
-                          : { backgroundColor: markerColor },
+                        cond(
+                          and(
+                            greaterOrEq(
+                              new Animated.Value(position),
+                              this.adjustedScrollValue
+                            ),
+                            lessOrEq(
+                              new Animated.Value(position),
+                              add(this.adjustedScrollValue, this.trimmerWidth)
+                            )
+                          ),
+                          {
+                            backgroundColor: tintColor,
+                            transform: [{ scaleY: 1.5 }],
+                          },
+                          { backgroundColor: markerColor }
+                        ),
+
+                        // position >= adjustedScrollValue &&
+                        // position <= adjustedScrollValue + trimmerWidth
+                        //   ? {
+                        //       backgroundColor: tintColor,
+                        //       transform: [{ scaleY: 1.5 }],
+                        //     }
+                        //   : { backgroundColor: markerColor },
                       ]}
                     />
                   );

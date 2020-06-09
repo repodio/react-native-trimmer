@@ -9,7 +9,6 @@ export default class TrimmerSlider extends React.Component {
   slider = React.createRef();
 
   setSliderValue = (value) => {
-    console.log("setSliderValue ", value);
     this.slider.current.setNativeProps({ value });
   };
 
