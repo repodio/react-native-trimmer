@@ -74,12 +74,14 @@ export default class Trimmer extends React.Component {
   contentWidth = new Animated.Value(0);
   trimmerWidth = new Animated.Value(0);
   adjustedScrollValue = new Animated.Value(0);
-  animatedText = React.createRef();
-  slider = React.createRef();
+  animatedTextRef = React.createRef();
+  sliderRef = React.createRef();
+  scrollViewRef = React.createRef();
 
   state = {
     markerMargin: 0,
     contentWidth: 0,
+    scrubbing: false,
   };
 
   componentDidMount() {
@@ -106,15 +108,65 @@ export default class Trimmer extends React.Component {
     }
   }
 
+  onSliderValueChanged = (value) => {
+    this.setState({ scrubbing: true });
+
+    if (
+      this.scrollViewRef &&
+      this.scrollViewRef.current &&
+      this.scrollViewRef.current.getNode
+    ) {
+      const { totalDuration, trimmerLength } = this.props;
+
+      const newStartingPosition = value * (totalDuration - trimmerLength);
+      const newScrollPosition =
+        (newStartingPosition / totalDuration) * this.state.contentWidth;
+
+      const node =
+        this.scrollViewRef.current && this.scrollViewRef.current.getNode();
+
+      if (node) {
+        console.log("onSliderValueChanged");
+        node.scrollTo({
+          x: newScrollPosition,
+          y: 0,
+          animated: true,
+        });
+
+        this.animatedTextRef.current.setText(
+          formatMilliseconds(newStartingPosition)
+        );
+      }
+      // this.setState({ startPositionLabel: newStartingPosition });
+    }
+    this.stopTrackProgressAnimation();
+  };
+
+  onSlidingComplete = (value) => {
+    console.log("onSlidingComplete");
+
+    this.setState({ scrubbing: false });
+
+    if (this && this.scrollViewRef) {
+      const { totalDuration, trimmerLength } = this.props;
+
+      const newStartingPosition = value * (totalDuration - trimmerLength);
+
+      // this.setState({ startPosition: newStartingPosition });
+    }
+    // if (this.state.playing) {
+    //   this.startTrackProgressAnimation();
+    // }
+  };
+
   onScroll = (positionX) => {
     const {
-      scrubbing,
       totalDuration,
       onStartValueChanged,
       trimmerLength = TRIMMER_LENGTH,
       trimmerWidth = TRIMMER_WIDTH,
     } = this.props;
-    const { contentWidth } = this.state;
+    const { contentWidth, scrubbing } = this.state;
 
     if (scrubbing) {
       return;
@@ -124,8 +176,9 @@ export default class Trimmer extends React.Component {
 
     const newSlidePosition = newStartingTime / (totalDuration - trimmerLength);
 
-    this.animatedText.current.setText(formatMilliseconds(newStartingTime));
-    this.slider.current.setSliderValue(newSlidePosition);
+    console.log("setText", newStartingTime);
+    this.animatedTextRef.current.setText(formatMilliseconds(newStartingTime));
+    this.sliderRef.current.setSliderValue(newSlidePosition);
 
     // if (
     //   Math.abs(
@@ -189,7 +242,7 @@ export default class Trimmer extends React.Component {
   };
 
   _renderStartingText = () => {
-    return <StartingText ref={this.animatedText} />;
+    return <StartingText ref={this.animatedTextRef} />;
   };
 
   render() {
@@ -294,7 +347,7 @@ export default class Trimmer extends React.Component {
           </View>
           <View style={{ flex: 1 }}>
             <TrimmerSlider
-              ref={this.slider}
+              ref={this.sliderRef}
               onSliderValueChanged={this.onSliderValueChanged}
               onSlidingComplete={this.onSlidingComplete}
             />
@@ -312,7 +365,7 @@ export default class Trimmer extends React.Component {
         <View>{this._renderStartingText()}</View>
         <View style={[styles.trimmerRoot, { width }]}>
           <Animated.ScrollView
-            ref={(ref) => (this.scrollViewRef = ref)}
+            ref={this.scrollViewRef}
             // scrollEnabled={true}
             style={[
               styles.horizontalScrollView,
@@ -492,8 +545,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,
-    borderColor: "red",
-    borderWidth: 1,
   },
   trimmer: {
     borderColor: TINT_COLOR,
@@ -531,8 +582,6 @@ const styles = StyleSheet.create({
     height: "100%",
     position: "absolute",
     zIndex: 9,
-    borderColor: "green",
-    borderWidth: 1,
   },
   overlay: {
     position: "absolute",
