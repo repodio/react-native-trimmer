@@ -1,21 +1,15 @@
 import React from "react";
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  Easing,
-  Text,
-  Dimensions,
-} from "react-native";
-import Animated from "react-native-reanimated";
+import { StyleSheet, ScrollView, View, Text, Dimensions } from "react-native";
+import Animated, { Easing } from "react-native-reanimated";
 
-import StartingText from "./StartingText";
+import ClipPositionText from "./ClipPositionText";
 import TrimmerSlider from "./TrimmerSlider";
 import TrimmerLengthButton from "./TrimmerLengthButton";
 
 const { width: screenWidth } = Dimensions.get("window");
 
 const {
+  timing,
   set,
   block,
   call,
@@ -51,22 +45,6 @@ const TRACK_PROGRESS_COLOR = "#93b5b3";
 round = (num) => Math.round(num).toFixed(0);
 
 clamp = ({ num, min, max }) => (num <= min ? min : num >= max ? max : num);
-
-formatMilliseconds = (ms) => {
-  // 1- Convert to seconds:
-  var seconds = ms / 1000;
-  // 2- Extract hours:
-  var hours = parseInt(seconds / 3600); // 3,600 seconds in 1 hour
-  seconds = seconds % 3600; // seconds remaining after extracting hours
-  // 3- Extract minutes:
-  var minutes = parseInt(seconds / 60); // 60 seconds in 1 minute
-  // 4- Keep only seconds not extracted to minutes:
-  seconds = seconds % 60;
-
-  return `${round(hours)}:${
-    round(minutes) < 10 ? `0${round(minutes)}` : round(minutes)
-  }:${seconds < 10 ? `0${seconds.toFixed(0)}` : seconds.toFixed(0)}`;
-};
 
 export default class Trimmer extends React.Component {
   scrollX = new Animated.Value(0);
@@ -133,9 +111,7 @@ export default class Trimmer extends React.Component {
           animated: true,
         });
 
-        this.animatedTextRef.current.setText(
-          formatMilliseconds(newStartingPosition)
-        );
+        this.animatedTextRef.current.setText(newStartingPosition);
       }
       // this.setState({ startPositionLabel: newStartingPosition });
     }
@@ -148,7 +124,7 @@ export default class Trimmer extends React.Component {
     this.setState({ scrubbing: false });
 
     if (this && this.scrollViewRef) {
-      const { totalDuration, trimmerLength } = this.props;
+      const { totalDuration, trimmerLength = TRIMMER_LENGTH } = this.props;
 
       const newStartingPosition = value * (totalDuration - trimmerLength);
 
@@ -176,8 +152,7 @@ export default class Trimmer extends React.Component {
 
     const newSlidePosition = newStartingTime / (totalDuration - trimmerLength);
 
-    console.log("setText", newStartingTime);
-    this.animatedTextRef.current.setText(formatMilliseconds(newStartingTime));
+    this.animatedTextRef.current.setText(newStartingTime);
     this.sliderRef.current.setSliderValue(newSlidePosition);
 
     // if (
@@ -223,26 +198,32 @@ export default class Trimmer extends React.Component {
 
   startTrackProgressAnimation = () => {
     //TODO Get these to work
-    // const { trimmerLength } = this.props;
-    // this.trackProgress.setValue(0);
+    const { trimmerLength = TRIMMER_LENGTH } = this.props;
+    this.trackProgress.setValue(0);
     // Animated.loop(
-    //   Animated.timing(this.trackProgress, {
-    //     toValue: 1,
-    //     duration: trimmerLength,
-    //     // easing: Easing.linear,
-    //     // useNativeDriver: true,
-    //   })
+    Animated.timing(this.trackProgress, {
+      toValue: 1,
+      duration: trimmerLength,
+      easing: Easing.linear,
+      // useNativeDriver: true,
+    }).start();
     // ).start();
   };
 
   stopTrackProgressAnimation = () => {
     //TODO Get these to work
-    // Animated.timing(this.trackProgress).stop();
-    // this.trackProgress.setValue(0);
+    Animated.timing(this.trackProgress).stop();
+    this.trackProgress.setValue(0);
   };
 
   _renderStartingText = () => {
-    return <StartingText ref={this.animatedTextRef} />;
+    const { trimmerLength = TRIMMER_LENGTH } = this.props;
+    return (
+      <ClipPositionText
+        ref={this.animatedTextRef}
+        trimmerLength={trimmerLength}
+      />
+    );
   };
 
   render() {
