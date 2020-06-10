@@ -321,7 +321,7 @@ class Example extends Component {
           totalDuration={totalDuration}
           tintColor={"#222B45"}
           trackProgressColor="#40E1A9"
-          markerColor={"#EDEFF3"}
+          markerColor={"#222B45"}
           trackBackgroundColor={"#FFF"}
           trackBorderColor={"#5a3d5c"}
           onStartValueChanged={this.onTrimmerValueChangedThrottles}
