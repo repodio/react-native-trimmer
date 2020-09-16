@@ -120,7 +120,7 @@ class Example extends Component {
   
 
   playScrubber = () => {
-    this.setState({ playling: true });
+    this.setState({ playing: true });
 
     this.scrubberInterval = setInterval(() => {
       this.setState({ scrubberPosition: this.state.scrubberPosition + scrubInterval })
@@ -130,7 +130,7 @@ class Example extends Component {
   pauseScrubber = () => {
     clearInterval(this.scrubberInterval)
 
-    this.setState({ playling: false, scrubberPosition: this.state.trimmerLeftHandlePosition });
+    this.setState({ playing: false, scrubberPosition: this.state.trimmerLeftHandlePosition });
   }
 
   onHandleChange = ({ leftPosition, rightPosition }) => {
@@ -149,13 +149,13 @@ class Example extends Component {
       trimmerLeftHandlePosition,
       trimmerRightHandlePosition,
       scrubberPosition,
-      playling,
+      playing,
     } = this.state;
     
     return (
       <View>
         {
-          playling
+          playing
             ? <Button title="Pause" color="#f638dc" onPress={this.pauseScrubber}/>
             : <Button title="Play" color="#f638dc" onPress={this.playScrubber}/>
         }
