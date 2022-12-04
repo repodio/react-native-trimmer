@@ -1725,9 +1725,9 @@ decamelize@^1.1.1:
   integrity sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=
 
 decode-uri-component@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.0.tgz#eb3913333458775cb84cd1a1fae062106bb87545"
-  integrity sha1-6zkTMzRYd1y4TNGh+uBiEGu4dUU=
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/decode-uri-component/-/decode-uri-component-0.2.2.tgz#e69dbe25d37941171dd540e024c444cd5188e1e9"
+  integrity sha512-FqUYQ+8o158GyGTrMFJms9qh3CqTKvAqgqsTnkLI8sKu0028orqBhxNMFkFen0zGyg6epACD32pjVk58ngIErQ==
 
 deep-assign@^3.0.0:
   version "3.0.0"
@@ -4181,10 +4181,10 @@ react-native-branch@~3.0.1:
   resolved "https://registry.yarnpkg.com/react-native-branch/-/react-native-branch-3.0.1.tgz#5b07b61cbd290168cd3c3662e017ebe0f356d2ca"
   integrity sha512-vbcYxPZlpF5f39GAEUF8kuGQqCNeD3E6zEdvtOq8oCGZunHXlWlKgAS6dgBKCvsHvXgHuMtpvs39VgOp8DaKig==
 
-react-native-trimmer@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/react-native-trimmer/-/react-native-trimmer-1.0.1.tgz#3657f38340fdef8a8c80b92999b50b8f9f8d8eac"
-  integrity sha512-IPMc+FA2l+NUs61qD4lK+WE8duwoLiTPLe65i4HPVI5CY8bHMv9Pd+TQG219RKUe+2I8Gc+XxjzVHoOhHjavAw==
+react-native-trimmer@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-trimmer/-/react-native-trimmer-1.1.1.tgz#f3855672fe605c6b65aa7e2c704446c63a44e0f0"
+  integrity sha512-fMdSirI9D7XoLcq30tvmOGzxhkINmvlyE71fdfLQtkNeHmwtxXVNcFAaRyqSPFqwIFoRVFPSJl25vy7EqWc33Q==
 
 react-native-view-shot@2.6.0:
   version "2.6.0"
